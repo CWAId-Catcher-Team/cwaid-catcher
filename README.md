@@ -15,6 +15,15 @@ Board | Adafruit HUZZAH32
 BLE Library | Espressif<br>https://github.com/espressif/arduino-esp32/tree/master/libraries/BLE
 IDE | Arduino IDE
 
+## Install Instruction Ubuntu
+Follow the tutorials. Use this json link for the esp json!!!!
+
+## Tutorials
+Install Arduino from website not from package-manager!!
+Follow the tutorials. Use this json link for the esp json: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-mac-and-linux-instructions/
+https://randomnerdtutorials.com/getting-started-with-esp32/
+
 ## Week Plans:
 
 **01-08:**
