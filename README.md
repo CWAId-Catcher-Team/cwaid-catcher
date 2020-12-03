@@ -22,6 +22,7 @@ Follow the tutorials. Use this json link for the esp json!!!!
  - Install Arduino from website not from package-manager!!
  - Follow the tutorials. Use this json link for the esp json: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
  - Select ESP Feather from the boards list
+ - Use USB cable which is not for charging only if port is greyed out
  - https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-mac-and-linux-instructions/
  - https://randomnerdtutorials.com/getting-started-with-esp32/
 
