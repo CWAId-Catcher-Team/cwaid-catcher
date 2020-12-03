@@ -19,11 +19,11 @@ IDE | Arduino IDE
 Follow the tutorials. Use this json link for the esp json!!!!
 
 ## Tutorials
-Install Arduino from website not from package-manager!!
-Follow the tutorials. Use this json link for the esp json: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-Select ESP Feather from the boards list
-https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-mac-and-linux-instructions/
-https://randomnerdtutorials.com/getting-started-with-esp32/
+ - Install Arduino from website not from package-manager!!
+ - Follow the tutorials. Use this json link for the esp json: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+ - Select ESP Feather from the boards list
+ - https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-mac-and-linux-instructions/
+ - https://randomnerdtutorials.com/getting-started-with-esp32/
 
 ## Week Plans:
 
