@@ -12,7 +12,7 @@ Target date for finishing lab: End of January
 ------------ | -------------
 Sensor | Standard ESP32
 Board | Adafruit HUZZAH32
-BLE Library | Espressif<br>https://github.com/espressif/arduino-esp32/tree/master/libraries/BLE
+BLE Library | Espressif<br>https://github.com/espressif/arduino-esp32/tree/master/libraries/BLE<br>https://docs.espressif.com/projects/esp-idf/en/release-v4.1/api-reference/index.html
 IDE | Arduino IDE
 
 ## Tutorials
