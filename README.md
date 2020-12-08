@@ -14,6 +14,11 @@ Sensor | Standard ESP32
 Board | Adafruit HUZZAH32
 BLE Library | Espressif<br>https://github.com/espressif/arduino-esp32/tree/master/libraries/BLE<br>https://docs.espressif.com/projects/esp-idf/en/release-v4.1/api-reference/index.html
 IDE | Arduino IDE
+Exposure Notification API Bluetooth Specification | https://www.blog.google/documents/70/Exposure_Notification_-_Bluetooth_Specification_v1.2.2.pdf
+Exposure Notification API Cryptography Specification | https://blog.google/documents/69/Exposure_Notification_-_Cryptography_Specification_v1.2.1.pdf
+Corona Warn App GitHub | https://github.com/corona-warn-app
+Android Exposure Notification API | https://github.com/google/exposure-notifications-android
+
 
 ## Tutorials
  - Install Arduino from website not from package-manager!!
