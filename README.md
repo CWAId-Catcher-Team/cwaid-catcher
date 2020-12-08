@@ -33,3 +33,7 @@ Android Exposure Notification API | https://github.com/google/exposure-notificat
 **01-08:**
 * Get ESPs
 * Get familiar with ESP (how to use it and try a simple hello world project or so)
+
+**08-15:**
+* Niklas & Simon: Get Bluetooth frame catching running on ESP and optionally already create some code for the rest of the project
+* Lukas & Martin: Research documentation to filter out how backend works and how keys are distributed between client devices. Document everything and present it in the next meeting.
