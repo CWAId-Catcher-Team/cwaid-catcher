@@ -17,12 +17,11 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
         Serial.printf("Advertised Device: %s \n", advertisedDevice.toString().c_str());
 
         uint8_t* payload = advertisedDevice.getPayload();
+        Serial.printf("Collected raw payload: 0x");
         for (size_t i = 0; i < advertisedDevice.getPayloadLength(); i++) {
-          Serial.printf("iterating through array: %x\n", payload[i]);
+          Serial.printf("%02x", payload[i]);
         }
-
-        
-        Serial.printf("PayploadLenght: %zu \n", advertisedDevice.getPayloadLength());
+        Serial.printf("\n");
       }
       
     }
