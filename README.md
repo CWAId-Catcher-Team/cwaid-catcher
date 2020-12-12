@@ -18,6 +18,7 @@ Exposure Notification API Bluetooth Specification | https://www.blog.google/docu
 Exposure Notification API Cryptography Specification | https://blog.google/documents/69/Exposure_Notification_-_Cryptography_Specification_v1.2.1.pdf
 Corona Warn App GitHub | https://github.com/corona-warn-app
 Android Exposure Notification API | https://github.com/google/exposure-notifications-android
+TEK Backend Server & Access API | https://blog.to.com/corona-warn-app-daten/
 
 
 ## Tutorials
