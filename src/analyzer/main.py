@@ -1,0 +1,1 @@
+# TODO: get List of downloaded TEKs and ENInterval Numbers. Parse them to bytes. Use keys.py to derive RPI key for each <TEK, ENIntervalNumber> tuple.

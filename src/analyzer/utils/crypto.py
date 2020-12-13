@@ -1,26 +1,26 @@
 import time
-import numpy
 import Crypto.Cipher.AES as AES
 import Crypto.Util.Padding as pad
 import Crypto.Protocol.KDF as KDF
 import Crypto.Hash.SHA256 as SHA256
 
-
 class CryptoHelper:
+    def __init__:
+        
     """Cryptographical Helper Functions for Exposure Notification key scheduling.
     """
-    def en_interval_number(self, timestamp: time) -> numpy.uint32:
+    def en_interval_number(self, timestamp: time) -> bytes:
         """This function provides a number for each 10 minute time window that’s shared between all devices participating in the protocol. These time windows are derived from timestamps in Unix Epoch Time.
 
         Args:
             timestamp (time): timestamp in Unix Epoch Time and returns a 32-bit unsigned litte-endian value.
 
         Returns:
-            uint32:  a 32-bit (uint32_t) unsigned little-endian value. 
+            uint32:  a 32-bit unsigned little-endian value. 
         """
         seconds = time.time()
         intervalNumber = seconds / (60 * 10)
-        return numpy.uint32(intervalNumber)
+        return int(intervalNumber).to_bytes(4,'little')
 
     def aes_ecb_encryption(key: bytes, data: bytes) -> bytes:
         """AES-128-ECB (Electronic Codebook Mode) Encryption of 16 bytes data.
