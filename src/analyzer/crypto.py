@@ -2,6 +2,9 @@ import time
 import numpy
 import Crypto.Cipher.AES as AES
 import Crypto.Util.Padding as pad
+import Crypto.Protocol.KDF as KDF
+import Crypto.Hash.SHA256 as SHA256
+
 
 class CryptoHelper:
     """Cryptographical Helper Functions for Exposure Notification key scheduling.
@@ -39,8 +42,20 @@ class CryptoHelper:
         enc_data = cipher.encrypt(data)
         return enc_data
     
-    def hkdf: 
-        raise NotImplementedError
+    def hkdf(key_master_secret: bytes, salt: bytes, info: str, output_length: int) -> bytes:
+        """Derive one or more keys from a master secret using the HMAC-based KDF defined in RFC5869.
+
+        Args:
+            key_master_secret (bytes): The unguessable value used by the KDF to generate the other keys. It must be a high-entropy secret, though not necessarily uniform. It must not be a password.
+            salt (bytes): A non-secret, reusable value that strengthens the randomness extraction step. Ideally, it is as long as the digest size of the chosen hash. If empty, a string of zeroes in used.
+            info (str): Identifier describing what the keys are used for.
+            output_length (int): The length in bytes of every derived key.
+
+        Returns:
+            [type]: A byte string or a tuple of byte strings.
+        """
+        key = KDF.HKDF(key_master_secret, output_length, salt, SHA256, 1, info)
+        return key
 # Test  
 c = CryptoHelper()
 value = c.en_interval_number(time.localtime()
