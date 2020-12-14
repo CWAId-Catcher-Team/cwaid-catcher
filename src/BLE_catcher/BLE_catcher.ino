@@ -24,7 +24,7 @@ void writeBeaconToFile(String beacon);
 
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
-      if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().toString() == "0000fd6f-0000-1000-8000-00805f9b34fb"){
+      if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(BLEUUID((uint16_t) 0xfd6f))){
         Serial.printf("Advertised Device: %s \n", advertisedDevice.toString().c_str());
 
         uint8_t* payload = advertisedDevice.getPayload();
@@ -141,4 +141,5 @@ void readFile(fs::FS &fs, const char * path){
         while(file.available()){
           Serial.write(file.read());
         }
-        file.close();}
+        file.close();
+ }
