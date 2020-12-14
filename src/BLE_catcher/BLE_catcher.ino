@@ -37,10 +37,13 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
         }
 
         // TODO: implement duplicate detection
-        String beacon = stream.str().c_str();
-        //Serial.print("Relevant payload: ");
-        Serial.println(beacon);
-        //writeBeaconToFile(beacon);
+        std::string beacon = stream.str();
+        cout << "Beacon: " << beacon << endl;
+        
+        if (true/*change to: queue does not contain beacon already*/) {
+          // if you want to test writing to file, remove comment in front of writeBeaconToFile
+          //writeBeaconToFile(beacon.c_str());
+        }
 
         // for testing purposes, can be deleted
         /*std::stringstream stream2;
@@ -83,19 +86,35 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   BLEScanResults foundDevices = pBLEScan->start(scanTime, false);
-  Serial.print("Devices found: ");
-  Serial.println(foundDevices.getCount());
   Serial.println("Scan done!");
   pBLEScan->clearResults();   // delete results fromBLEScan buffer to release memory
+
+  if (Serial.available()) {
+    String input = Serial.readStringUntil('\n');
+    if(input.equals("read")) {
+      Serial.println("Reading beacons from file:");
+      File file = SPIFFS.open("/beacons.txt", "r");
+        while(file.available()){
+          Serial.write(file.read());
+        }
+        file.close();
+        Serial.println("All beacons displayed.");
+    }
+  }
   delay(20000);
 }
 
 void writeBeaconToFile(String beacon) {
-  File file = SPIFFS.open("/beacons.txt", "a");
-  if (file) {
-    Serial.println("Writing to file: ");
-    Serial.println(beacon);
-    file.println(beacon);
+  // seems to write in pages of 251 bytes length
+  if (SPIFFS.totalBytes() - SPIFFS.usedBytes() > 256) {
+    Serial.printf("Used Bytes: %d\n", SPIFFS.usedBytes());
+    File file = SPIFFS.open("/beacons.txt", "a");
+    if (file) {
+      Serial.println("Writing to file: ");
+      Serial.println(beacon);
+      file.println(beacon);
+    }
+    file.close();
   }
-  file.close();
+  // else: maybe stop scanning / send sensor to sleep mode?
 }
