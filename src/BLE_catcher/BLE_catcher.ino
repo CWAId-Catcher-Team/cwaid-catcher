@@ -17,6 +17,8 @@ using namespace std;
 
 int scanTime = 5; //In seconds
 BLEScan* pBLEScan;
+bool scan = true;
+const char * beaconFile = "/beacons.txt";
 
 void writeBeaconToFile(String beacon);
 
@@ -38,11 +40,13 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
         // TODO: implement duplicate detection
         std::string beacon = stream.str();
-        cout << "Beacon: " << beacon << endl;
-        
-        if (true/*change to: queue does not contain beacon already*/) {
-          // if you want to test writing to file, remove comment in front of writeBeaconToFile
-          //writeBeaconToFile(beacon.c_str());
+        cout << "Beacon: " << beacon.c_str() << endl;
+
+        if (scan){
+          if (true/*change to: queue does not contain beacon already*/) {
+            // if you want to test writing to file, remove comment in front of writeBeaconToFile
+            writeBeaconToFile(beacon.c_str());
+          }
         }
 
         // for testing purposes, can be deleted
@@ -61,6 +65,11 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("---------------Commands:---------------");
+  Serial.println("read - reading the catched frames log file.");
+  Serial.println("clean - remove and recreate catched frames log file.");
+  Serial.println("log - stop/start logging of catched frames. Started on default.");
+  Serial.println("---------------------------------------");
   Serial.println("Scanning...");
 
   BLEDevice::init("");
@@ -76,29 +85,35 @@ void setup() {
     while (true){}
   }
 
-  if (!SPIFFS.exists("/beacons.txt")) {
-    File file = SPIFFS.open("/beacons.txt", "w");
-    file.close();
-    Serial.println("File for beacons has been generated.");
+  if (!SPIFFS.exists(beaconFile)) {
+     createFile(SPIFFS, beaconFile);
   }
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   BLEScanResults foundDevices = pBLEScan->start(scanTime, false);
-  Serial.println("Scan done!");
   pBLEScan->clearResults();   // delete results fromBLEScan buffer to release memory
 
   if (Serial.available()) {
     String input = Serial.readStringUntil('\n');
     if(input.equals("read")) {
-      Serial.println("Reading beacons from file:");
-      File file = SPIFFS.open("/beacons.txt", "r");
-        while(file.available()){
-          Serial.write(file.read());
-        }
-        file.close();
-        Serial.println("All beacons displayed.");
+        readFile(SPIFFS, beaconFile);
+        Serial.println("All frames displayed.");
+    }
+    else if (input.equals("clean")){
+      deleteFile(SPIFFS, beaconFile);
+      createFile(SPIFFS, beaconFile);
+    }
+    else if (input.equals("log")){
+      if (scan){
+        Serial.println("No longer logging!");
+        scan = false;
+      }
+      else {
+        Serial.println("Loggin now.");
+        scan = true;
+      }
     }
   }
   delay(20000);
@@ -108,9 +123,9 @@ void writeBeaconToFile(String beacon) {
   // seems to write in pages of 251 bytes length
   if (SPIFFS.totalBytes() - SPIFFS.usedBytes() > 256) {
     Serial.printf("Used Bytes: %d\n", SPIFFS.usedBytes());
-    File file = SPIFFS.open("/beacons.txt", "a");
+    File file = SPIFFS.open(beaconFile, FILE_APPEND);
     if (file) {
-      Serial.println("Writing to file: ");
+      Serial.print("Writing to file: ");
       Serial.println(beacon);
       file.println(beacon);
     }
@@ -118,3 +133,27 @@ void writeBeaconToFile(String beacon) {
   }
   // else: maybe stop scanning / send sensor to sleep mode?
 }
+
+void deleteFile(fs::FS &fs, const char * path){
+    scan = false;
+    if(fs.remove(path)){
+        Serial.println("- file deleted");
+    } else {
+        Serial.println("- delete failed");
+    }
+    scan = true;
+}
+
+void createFile(fs::FS &fs, const char * path){
+  File file = SPIFFS.open(path, FILE_WRITE);
+  file.close();
+  Serial.println("BLE frames log file has been re-generated.");
+}
+
+void readFile(fs::FS &fs, const char * path){
+  Serial.println("Reading logged frames:");
+      File file = SPIFFS.open(path, FILE_READ);
+        while(file.available()){
+          Serial.write(file.read());
+        }
+        file.close();}
