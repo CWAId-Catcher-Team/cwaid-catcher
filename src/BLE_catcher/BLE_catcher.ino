@@ -67,7 +67,6 @@ void setup() {
   Serial.begin(115200);
   Serial.println("---------------Commands:---------------");
   Serial.println("read - reading the catched frames log file.");
-  Serial.println("clean - remove and recreate catched frames log file.");
   Serial.println("log - stop/start logging of catched frames. Started on default.");
   Serial.println("---------------------------------------");
   Serial.println("Scanning...");
@@ -100,11 +99,7 @@ void loop() {
     if(input.equals("read")) {
         readFile(SPIFFS, beaconFile);
         Serial.println("All frames displayed.");
-    }
-    else if (input.equals("clean")){
-      deleteFile(SPIFFS, beaconFile);
-      createFile(SPIFFS, beaconFile);
-    }
+    }    
     else if (input.equals("log")){
       if (scan){
         Serial.println("No longer logging!");
@@ -134,20 +129,10 @@ void writeBeaconToFile(String beacon) {
   // else: maybe stop scanning / send sensor to sleep mode?
 }
 
-void deleteFile(fs::FS &fs, const char * path){
-    scan = false;
-    if(fs.remove(path)){
-        Serial.println("- file deleted");
-    } else {
-        Serial.println("- delete failed");
-    }
-    scan = true;
-}
-
 void createFile(fs::FS &fs, const char * path){
   File file = SPIFFS.open(path, FILE_WRITE);
   file.close();
-  Serial.println("BLE frames log file has been re-generated.");
+  Serial.println("BLE frames log file has been generated.");
 }
 
 void readFile(fs::FS &fs, const char * path){
