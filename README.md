@@ -29,6 +29,19 @@ TEK Backend Server & Access API | https://blog.to.com/corona-warn-app-daten/
  - https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-mac-and-linux-instructions/
  - https://randomnerdtutorials.com/getting-started-with-esp32/
 
+## Usage of sensors
+- To avoid accidental deletion of collected beacons, the deletion/clearing of the beacons file stored in the sensors' flash memory can only be done using the FileIO programm.
+- Changing the sensor's program code does not seem to affect the file in flash memory that stores the beacons.
+- The sensors' reset button do not format the flash memory, i.e. the beacons in storage are persistent until deletion using FileIO
+- FileIO and BLE_catcher both allow to print all stored beacons by typing `read` as SerialMonitor input. Note: BLE_catcher only reads that input every 20 seconds at the moment, so be patient :)
+- File management is handled in code, the only thing you have to do is reading and clearing it (see below).
+- FileIO comes with the following input commands to SerialMonitor: 
+  - `read` (prints all beacons stored in flash mem)
+  - `delete` (deletes beacon file)
+  - `clear` (flushes all stored beacons from file)
+  - `usedBytes` (displays #bytes that are currently used to store beacons)
+  - `totalBytes` (displays #bytes that can potentially be used to store beacons)
+
 ## Week Plans:
 
 **01-08:**
