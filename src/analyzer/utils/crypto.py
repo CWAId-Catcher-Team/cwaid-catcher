@@ -5,8 +5,6 @@ import Crypto.Protocol.KDF as KDF
 import Crypto.Hash.SHA256 as SHA256
 
 class CryptoHelper:
-    def __init__:
-        
     """Cryptographical Helper Functions for Exposure Notification key scheduling.
     """
     def en_interval_number(self, timestamp: time) -> bytes:
@@ -22,7 +20,7 @@ class CryptoHelper:
         intervalNumber = seconds / (60 * 10)
         return int(intervalNumber).to_bytes(4,'little')
 
-    def aes_ecb_encryption(key: bytes, data: bytes) -> bytes:
+    def aes_ecb_encryption(self, key: bytes, data: bytes) -> bytes:
         """AES-128-ECB (Electronic Codebook Mode) Encryption of 16 bytes data.
 
         Args:
@@ -42,7 +40,7 @@ class CryptoHelper:
         enc_data = cipher.encrypt(data)
         return enc_data
     
-    def hkdf(key_master_secret: bytes, salt: bytes, info: str, output_length: int) -> bytes:
+    def hkdf(self,key_master_secret: bytes, salt: bytes, info: str, output_length: int) -> bytes:
         """Derive one or more keys from a master secret using the HMAC-based KDF defined in RFC5869.
 
         Args:
@@ -56,7 +54,3 @@ class CryptoHelper:
         """
         key = KDF.HKDF(key_master_secret, output_length, salt, SHA256, 1, info)
         return key
-# Test  
-c = CryptoHelper()
-value = c.en_interval_number(time.localtime()
-print(value)
