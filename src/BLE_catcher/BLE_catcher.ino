@@ -28,7 +28,7 @@ void writeBeaconToFile(String beacon);
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
       if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(BLEUUID((uint16_t) 0xfd6f))){
-        Serial.printf("Advertised Device: %s \n", advertisedDevice.toString().c_str());
+        //Serial.printf("Advertised Device: %s \n", advertisedDevice.toString().c_str());
 
         uint8_t* payload = advertisedDevice.getPayload();
         size_t len = advertisedDevice.getPayloadLength();
@@ -41,30 +41,16 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
           stream << std::hex << std::setw(2) << (unsigned int) payload[i];
         }
 
-        // TODO: implement duplicate detection
         std::string beacon = stream.str();
         cout << "Beacon: " << beacon.c_str() << endl;
 
-        if (scan){
-          if (std::find(seenBeacons.begin(), seenBeacons.end(), beacon.c_str()) == seenBeacons.end()) {
-            // if you want to test writing to file, remove comment in front of writeBeaconToFile
-            writeBeaconToFile(beacon.c_str());
-            seenBeacons.push_front(beacon.c_str());
-            if(seenBeacons.size() >= maxBeacons) {
-              seenBeacons.pop_back();
-            }
+        if (std::find(seenBeacons.begin(), seenBeacons.end(), beacon.c_str()) == seenBeacons.end()) {
+          writeBeaconToFile(beacon.c_str());
+          seenBeacons.push_front(beacon.c_str());
+          if(seenBeacons.size() >= maxBeacons) {
+            seenBeacons.pop_back();
           }
         }
-
-        // for testing purposes, can be deleted
-        /*std::stringstream stream2;
-        stream2 << std::hex << std::setfill('0');
-        for (size_t i = 0; i < advertisedDevice.getPayloadLength(); i++) {
-          stream2 << std::hex << std::setw(2) << (unsigned int) payload[i];
-        }
-        String s2 = stream2.str().c_str();
-        Serial.printf("Full payload: ");
-        Serial.println(s2);*/
       }
       
     }
@@ -86,7 +72,7 @@ void setup() {
   pBLEScan->setWindow(99);  // less or equal setInterval value
 
   // setup flash memory and a file to store collected beacons
-  //needs to be set to true at the first start
+  // needs to be set to true at the first start
   if (!SPIFFS.begin(false)) {
     Serial.println("Error while initializing SPIFFS!");
     while (true){}
@@ -98,10 +84,11 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  BLEScanResults foundDevices = pBLEScan->start(scanTime, false);
-  pBLEScan->clearResults();   // delete results fromBLEScan buffer to release memory
-
+  if (scan) {
+    BLEScanResults foundDevices = pBLEScan->start(scanTime, false);
+    pBLEScan->clearResults();   // delete results fromBLEScan buffer to release memory
+  }
+ 
   if (Serial.available()) {
     String input = Serial.readStringUntil('\n');
     if(input.equals("read")) {
@@ -114,12 +101,12 @@ void loop() {
         scan = false;
       }
       else {
-        Serial.println("Loggin now.");
+        Serial.println("Logging now.");
         scan = true;
       }
     }
   }
-  delay(2000);
+  delay(25000);
 }
 
 void writeBeaconToFile(String beacon) {
@@ -133,8 +120,9 @@ void writeBeaconToFile(String beacon) {
       file.println(beacon);
     }
     file.close();
+  } else {
+    scan = false;
   }
-  // else: maybe stop scanning / send sensor to sleep mode?
 }
 
 void createFile(fs::FS &fs, const char * path){
