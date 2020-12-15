@@ -116,8 +116,10 @@ void writeBeaconToFile(String beacon) {
     File file = SPIFFS.open(beaconFile, FILE_APPEND);
     if (file) {
       Serial.print("Writing to file: ");
-      Serial.println(beacon);
-      file.println(beacon);
+      Serial.print(beacon);
+      Serial.printf(";%d\n", esp_timer_get_time() / 1000000);
+      file.print(beacon);
+      file.printf(";%d\n", esp_timer_get_time() / 1000000);
     }
     file.close();
   } else {
