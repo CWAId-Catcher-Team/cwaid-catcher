@@ -12,6 +12,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <deque>
 
 using namespace std;
 
@@ -19,6 +20,8 @@ int scanTime = 5; //In seconds
 BLEScan* pBLEScan;
 bool scan = true;
 const char * beaconFile = "/beacons.txt";
+deque<String> seenBeacons;
+int maxBeacons = 250;
 
 void writeBeaconToFile(String beacon);
 
@@ -43,9 +46,13 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
         cout << "Beacon: " << beacon.c_str() << endl;
 
         if (scan){
-          if (true/*change to: queue does not contain beacon already*/) {
+          if (std::find(seenBeacons.begin(), seenBeacons.end(), beacon.c_str()) == seenBeacons.end()) {
             // if you want to test writing to file, remove comment in front of writeBeaconToFile
             writeBeaconToFile(beacon.c_str());
+            seenBeacons.push_front(beacon.c_str());
+            if(seenBeacons.size() >= maxBeacons) {
+              seenBeacons.pop_back();
+            }
           }
         }
 
@@ -79,6 +86,7 @@ void setup() {
   pBLEScan->setWindow(99);  // less or equal setInterval value
 
   // setup flash memory and a file to store collected beacons
+  //needs to be set to true at the first start
   if (!SPIFFS.begin(false)) {
     Serial.println("Error while initializing SPIFFS!");
     while (true){}
@@ -111,7 +119,7 @@ void loop() {
       }
     }
   }
-  delay(20000);
+  delay(2000);
 }
 
 void writeBeaconToFile(String beacon) {
