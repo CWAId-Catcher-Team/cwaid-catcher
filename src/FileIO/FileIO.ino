@@ -1,8 +1,10 @@
 #include <SPIFFS.h>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 bool beaconFileExists;
+const char* beaconFile = "/beacons.txt";
 
 void setup() {
   Serial.begin(115200);
@@ -13,7 +15,7 @@ void setup() {
   }
 
   delay(5000);
-  beaconFileExists = SPIFFS.exists("/beacons.txt");
+  beaconFileExists = SPIFFS.exists(beaconFile);
   if (beaconFileExists) {
     Serial.println("Beacons file exists in flash memory.");
   } else {
@@ -28,9 +30,20 @@ void loop() {
     if(input.equals("read")) {
       if (beaconFileExists) {
         Serial.println("Reading beacons from file:");
-        File file = SPIFFS.open("/beacons.txt", "r");
+        File file = SPIFFS.open(beaconFile, FILE_READ);
         while(file.available()){
-          Serial.write(file.read());
+          uint8_t beacon[20];
+          uint8_t timeArray[3];
+          file.read(beacon, sizeof(beacon));
+          file.read(timeArray, sizeof(timeArray));
+          
+          std::stringstream stream;
+          stream << std::hex << std::setfill('0');
+          for (size_t i = 0; i < sizeof(beacon); i++) {
+            stream << std::hex << std::setw(2) << (unsigned int) beacon[i];
+          }
+          uint32_t currentTime = (uint32_t) timeArray[0] << 16 | (uint16_t) timeArray[1] << 8 | timeArray[2];
+          std::cout << stream.str() << ";" << currentTime << std::endl;
         }
         file.close();
         Serial.println("All beacons displayed.");
@@ -40,11 +53,11 @@ void loop() {
 
     } else if (input.equals("delete")) {
       Serial.println("Deleting beacon file:");
-      Serial.printf("Deletion of beacons file successful == %s\n", SPIFFS.remove("/beacons.txt") ? "true" : "false");
+      Serial.printf("Deletion of beacons file successful == %s\n", SPIFFS.remove(beaconFile) ? "true" : "false");
       
     } else if (input.equals("create")) {
       if (!beaconFileExists) {
-        File file = SPIFFS.open("/beacons.txt", "w");
+        File file = SPIFFS.open(beaconFile, FILE_WRITE);
         file.close();
         Serial.println("Empty beacon file created.");
       } else {
@@ -53,7 +66,7 @@ void loop() {
       
     } else if (input.equals("clear")) {
       if (beaconFileExists) {
-        File file = SPIFFS.open("/beacons.txt", "w");
+        File file = SPIFFS.open(beaconFile, FILE_WRITE);
         file.close();
         Serial.println("Cleared current beacons from file.");
       } else {
@@ -70,7 +83,7 @@ void loop() {
     } else {
       Serial.println("Invalid command.");
     }
-    beaconFileExists = SPIFFS.exists("/beacons.txt");
+    beaconFileExists = SPIFFS.exists(beaconFile);
   }
   delay(2000);
 }
