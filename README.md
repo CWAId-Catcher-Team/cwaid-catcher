@@ -19,6 +19,7 @@ Exposure Notification API Cryptography Specification | https://blog.google/docum
 Corona Warn App GitHub | https://github.com/corona-warn-app
 Android Exposure Notification API | https://github.com/google/exposure-notifications-android
 TEK Backend Server & Access API | https://blog.to.com/corona-warn-app-daten/
+Goolge Exposure Notification API Key Scheduling Implementation | https://github.com/google/exposure-notifications-internals/blob/main/exposurenotification/src/main/cpp/matching_helper.cc
 
 
 ## Tutorials
