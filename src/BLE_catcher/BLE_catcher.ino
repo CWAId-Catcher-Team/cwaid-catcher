@@ -105,7 +105,7 @@ void loop() {
       }
     }
   }
-  delay(25000);
+  delay(15000);
 }
 
 void writeBeaconToFile(uint8_t * beacon, size_t len) {
