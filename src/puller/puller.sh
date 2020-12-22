@@ -1,10 +1,18 @@
 #!/bin/bash
 
-echo "Getting id of latest day" 
+# You can pass the day as an argument
 
-days=$(curl https://svc90.main.px.t-online.de/version/v1/diagnosis-keys/country/DE/date 2>/dev/null)
+if [[ $# -eq 0 ]]; then
+	echo "Getting id of latest day" 
 
-latest_day=$(echo $days| tr -d '"[]' | sed 'y_,_\n_' | tail -n 1)
+	days=$(curl https://svc90.main.px.t-online.de/version/v1/diagnosis-keys/country/DE/date 2>/dev/null)
+
+	latest_day=$(echo $days| tr -d '"[]' | sed 'y_,_\n_' | tail -n 1)
+else
+	echo "Using $1 as date"
+
+	latest_day="$1"
+fi
 
 echo "Getting zip file of encoded temporary exposure keys data"
 
