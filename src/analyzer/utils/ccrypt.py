@@ -8,7 +8,8 @@ class CryptoHelper:
     """Cryptographical Helper Functions for Exposure Notification key scheduling.
     """
     def en_interval_number(self, timestamp: time) -> bytes:
-        """This function provides a number for each 10 minute time window that’s shared between all devices participating in the protocol. These time windows are derived from timestamps in Unix Epoch Time.
+        """
+        This function provides a number for each 10 minute time window that’s shared between all devices participating in the protocol. These time windows are derived from timestamps in Unix Epoch Time.
 
         Args:
             timestamp (time): timestamp in Unix Epoch Time and returns a 32-bit unsigned litte-endian value.
@@ -54,3 +55,19 @@ class CryptoHelper:
         """
         key = KDF.HKDF(key_master_secret, output_length, salt, SHA256, 1, info)
         return key
+
+    def aes_ctr_decryption(self, key: bytes, iv: bytes, data: bytes) -> bytes:
+        """Decryption of AES-CTR encrypted data.
+
+        Args:
+            key (bytes): [description]
+            iv (bytes): [description]
+            data (bytes): [description]
+
+        Returns:
+            bytes: [description]
+        """
+        cipher = AES.new(key, AES.MODE_CBC, initial_value=iv)
+        return cipher.decrypt(data) 
+
+    
