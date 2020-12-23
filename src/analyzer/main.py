@@ -2,13 +2,14 @@
 # TODO: get List of downloaded TEKs and ENInterval Numbers. Parse them to bytes. Use keys.py to derive RPI key for each <TEK, ENIntervalNumber> tuple.
 
 from utils.keys import KeyScheduler as ks
-import utils.parser
+import parser
 
-keys_dict = utils.parser.parse_tek()
 
-print(keys_dict[0])
+tek_list = parser.parse_tek()
 
-ids = utils.parser.parse_ids()
+print("First element of tek_list key_data: " + str(tek_list[0][0]))
+
+ids = parser.parse_ids()
 
 print("First Element of first ids list: " + str(ids[0][0]) + " Second element of first ids list: " + str(ids[0][1]))
 

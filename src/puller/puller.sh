@@ -26,8 +26,8 @@ unzip -d ./exports/$latest_day "$latest_day"_tmp > /dev/null
 
 rm "$latest_day"_tmp
 
-echo "Decoding encoded temporary exposure keys data"
+echo "Filtering encoded temporary exposure keys data"
 
-tail +17c < ./exports/$latest_day/export.bin | ./protoc/bin/protoc --decode SAP.external.exposurenotification.TemporaryExposureKeyExport --proto_path=./proto/ ./proto/temporary_exposure_key_export.proto > ./exports/$latest_day/tek
+tail +17c ./exports/$latest_day/export.bin > ./exports/$latest_day/tek
 
 echo "Done"
