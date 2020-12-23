@@ -1,6 +1,6 @@
 import os
 import utils.temporary_exposure_key_export_pb2 as temporary_exposure_key_export_pb2
-import utils.config as config
+from utils.config import ApplicationConfig as config
 # Parses all teks from the exports and returns a list of dicts of lists of tek data, where a list contains up to 25000 elements and where the key is the key_data of tek
 def parse_tek(t_count):
     print("Parsing data of exported temporary exposure key binaries...")
@@ -61,7 +61,7 @@ def parse_ids():
     content = [] 
 
     # Read data of all exported files
-    for subdir in os.walk(config.CACHED_RPI_DIRECTORY):
+    for subdir in os.walk(config.CATCHED_RPI_DIRECTORY):
         for f in os.listdir(subdir):
             f_tmp = open(os.path.join(subdir, f), "r")
             content_tmp = f_tmp.readlines()
