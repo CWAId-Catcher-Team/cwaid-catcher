@@ -11,8 +11,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-import diagnosis_key_batch_pb2 as diagnosis__key__batch__pb2
-
+import utils.diagnosis_key_batch_pb2 as diagnosis__key__batch__pb2
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='temporary_exposure_key_export.proto',

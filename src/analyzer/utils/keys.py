@@ -1,4 +1,4 @@
-from .ccrypt import CryptoHelper as c
+from utils.ccrypt import CryptoHelper as c
 
 class KeyScheduler:
     """ Functions for Key Scheduling
