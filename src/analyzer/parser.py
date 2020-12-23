@@ -2,10 +2,12 @@ import os
 import temporary_exposure_key_export_pb2
 
 
-# Parses all teks from the exports and returns a dict of lists of tek data where the key is the key_data of tek
+# Parses all teks from the exports and returns a list of dicts of lists of tek data, where a list contains up to 25000 elements and where the key is the key_data of tek
 def parse_tek():
     print("Parsing data of exported temporary exposure key binaries...")
 
+    c = 0
+    content_list = []
     content = dict() 
 
     # Read data of all exported files
@@ -29,10 +31,18 @@ def parse_tek():
                     content_tmp.append(e.report_type)
                     content_tmp.append(e.days_since_onset_of_symptoms)
                     content[content_tmp[0]] = content_tmp
+                    c += 1
+                    if c % 30000 == 0:
+                        print("Adding " + str(len(content)) + " elements")
+                        content_list.append(content)
+                        content = dict()
+    
+    print("Adding " + str(len(content)) + " elements")
+    content_list.append(content)
 
     print("Done.")
 
-    return content 
+    return content_list
 
 
 # parses all catched ids and returns a list of dicts, where each dict corresponds to one id file of an esp and where each dict contains date and time as a key with its corresponding value when catching was started and for the rest the keys are the first 16 bytes of the id and contain id + seconds since start as a list
