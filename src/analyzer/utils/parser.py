@@ -42,7 +42,7 @@ def convert(encoded):
         return decoded 
 
 
-def parse():
+def parse_tek():
     print("Reading data of exported temporary exposure key binaries...")
 
     content = []
@@ -103,7 +103,7 @@ def parse():
         could_parse += 1
         i += 8
 
-    print("Done")
+    print("Done.")
     print("Could parse %d of %d elements" % (could_parse, len(content) / 8))
 
     #for e in key_dicts:
@@ -111,3 +111,31 @@ def parse():
     
     return key_dicts
 
+
+# parses all catched ids and returns list of lists, where each list contains in the first an array containing the date and time when catching was started and for the rest lists of ids + timestamp
+def parse_ids():
+    print("Parsing all ids...")
+
+    content = []
+
+    # Read data of all exported files
+    for subdir, dirs, files in os.walk("./ids"):
+        for f in os.listdir(subdir):
+            f_tmp = open(os.path.join(subdir, f), "r")
+            content_tmp = f_tmp.readlines()
+            f_tmp.close()
+
+            res = []
+
+            for c in content_tmp:
+                res.append(c.replace("\n", "").split(";"))
+
+            info = f.split("_")
+
+            res.insert(0, info[2:])
+
+            content.append(res)
+                
+    print("Done.")
+
+    return content

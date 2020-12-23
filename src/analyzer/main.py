@@ -4,9 +4,14 @@
 from utils.keys import KeyScheduler as ks
 import utils.parser
 
-keys_dict = utils.parser.parse()
+keys_dict = utils.parser.parse_tek()
 
 print(keys_dict[0])
+
+ids = utils.parser.parse_ids()
+
+print("First Element of first ids list: " + str(ids[0][0]) + " Second element of first ids list: " + str(ids[0][1]))
+
 
 #TODO: read line from parser. Loop through rolling_period and call tek_to_rpi on each TEK & intervall number where interval number = starting interal number + current loop index.
 key_scheduler = ks()
