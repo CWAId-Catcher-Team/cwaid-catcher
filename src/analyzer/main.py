@@ -4,6 +4,7 @@
 from utils.keys import KeyScheduler as ks
 import parser
 from multiprocessing import Pool
+from multiprocessing import cpu_count 
 
 
 def analyse_part(teks, tid):
@@ -23,7 +24,7 @@ def analyse_part(teks, tid):
 
 
 # get all teks downloaded from cwa server
-teks_list = parser.parse_tek()
+teks_list = parser.parse_tek(cpu_count())
 
 tmp = 0
 tmp_s = ""

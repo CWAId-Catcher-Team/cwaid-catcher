@@ -3,12 +3,13 @@ import temporary_exposure_key_export_pb2
 
 
 # Parses all teks from the exports and returns a list of dicts of lists of tek data, where a list contains up to 25000 elements and where the key is the key_data of tek
-def parse_tek():
+def parse_tek(t_count):
     print("Parsing data of exported temporary exposure key binaries...")
 
     c = 0
     content_list = []
-    content = dict() 
+    content = dict()
+    tek_list_list = []
 
     # Read data of all exported files
     for subdir, dirs, files in os.walk("../puller/exports"):
@@ -22,20 +23,29 @@ def parse_tek():
 
                 tek_list.ParseFromString(f_tmp)
 
-                for e in tek_list.keys:
-                    content_tmp = [] 
-                    content_tmp.append(e.key_data)
-                    content_tmp.append(e.transmission_risk_level)
-                    content_tmp.append(e.rolling_start_interval_number)
-                    content_tmp.append(e.rolling_period)
-                    content_tmp.append(e.report_type)
-                    content_tmp.append(e.days_since_onset_of_symptoms)
-                    content[content_tmp[0]] = content_tmp
-                    c += 1
-                    if c % 30000 == 0:
-                        print("Adding " + str(len(content)) + " elements")
-                        content_list.append(content)
-                        content = dict()
+                tek_list_list.append(tek_list)
+
+    length = 0
+    for tek_list in tek_list_list:
+        length += len(tek_list.keys)
+
+    length = int(length / t_count) + 1 
+    
+    for tek_list in tek_list_list:
+        for e in tek_list.keys:
+            content_tmp = [] 
+            content_tmp.append(e.key_data)
+            content_tmp.append(e.transmission_risk_level)
+            content_tmp.append(e.rolling_start_interval_number)
+            content_tmp.append(e.rolling_period)
+            content_tmp.append(e.report_type)
+            content_tmp.append(e.days_since_onset_of_symptoms)
+            content[content_tmp[0]] = content_tmp
+            c += 1
+            if c % length == 0:
+                print("Adding " + str(len(content)) + " elements")
+                content_list.append(content)
+                content = dict()
     
     print("Adding " + str(len(content)) + " elements")
     content_list.append(content)
