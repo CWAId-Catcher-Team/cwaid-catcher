@@ -5,17 +5,50 @@ from utils.keys import KeyScheduler as ks
 import parser
 
 
-tek_list = parser.parse_tek()
+# get all teks downloaded from cwa server
+teks = parser.parse_tek()
 
-print("First element of tek_list key_data: " + str(tek_list[0][0]))
+tmp = 0
+tmp_s = ""
+for i in teks.keys():
+    tmp += 1
+    if tmp == 1:
+        tmp_s = i
+        break
+    
+print("First element of tek_list key_data: " + str(tmp_s) + " element: " + str(teks[tmp_s]))
 
+# parse all catched ids
 ids = parser.parse_ids()
 
-print("First Element of first ids list: " + str(ids[0][0]) + " Second element of first ids list: " + str(ids[0][1]))
+tmp = 0
+tmp_s = ""
+for i in ids[0].keys():
+    tmp += 1
+    if tmp == 1:
+        tmp_s = i
+        break
+print("Date of first list: " + str(ids[0]["date"]) + ". Time of first list: " + str(ids[0]["time"]) + " first element of first ids list: " + str(ids[0][tmp_s]))
 
 
 #TODO: read line from parser. Loop through rolling_period and call tek_to_rpi on each TEK & intervall number where interval number = starting interal number + current loop index.
 key_scheduler = ks()
 rpi = key_scheduler.tek_to_rpi(bytes.fromhex("008edc9ec9d97f30dd06b3a58dcd969c"),2657808)
-print(rpi.hex())
+print(str(rpi.hex()))
 
+
+print("Analysing catched teks and ids. This can take a while...")
+c = 0
+# loop over each catched tek and calculate for each possible interval number the rpi and search if its is contained in the catched ids
+for key in teks:
+    tek = teks[key]
+    for i in range(tek[3]):
+        rpi = key_scheduler.tek_to_rpi(tek[0], i + tek[2])
+        for id_element in ids:
+            if rpi in id_element:
+                print("Found positive catched id! Rpi is: " + str(rpi) + " tek key data is: " + str(tek[0]) + " interval number is: " + str(i + tek[2]) + " id is: " + str(id_element[rpi]))
+    c += 1
+    if c % 10000 == 0:
+        print(str(c) + "/" + str(len(teks)) + " teks done")
+
+print("Done")

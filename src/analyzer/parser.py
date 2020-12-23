@@ -2,11 +2,11 @@ import os
 import temporary_exposure_key_export_pb2
 
 
-# Parses all teks from the exports and returns a list of tek data
+# Parses all teks from the exports and returns a dict of lists of tek data where the key is the key_data of tek
 def parse_tek():
     print("Parsing data of exported temporary exposure key binaries...")
 
-    content = []
+    content = dict() 
 
     # Read data of all exported files
     for subdir, dirs, files in os.walk("../puller/exports"):
@@ -28,18 +28,18 @@ def parse_tek():
                     content_tmp.append(e.rolling_period)
                     content_tmp.append(e.report_type)
                     content_tmp.append(e.days_since_onset_of_symptoms)
-                    content.append(content_tmp)
+                    content[content_tmp[0]] = content_tmp
 
     print("Done.")
 
     return content 
 
 
-# parses all catched ids and returns list of lists, where each list contains in the first an array containing the date and time when catching was started and for the rest lists of ids + timestamp
+# parses all catched ids and returns a list of dicts, where each dict corresponds to one id file of an esp and where each dict contains date and time as a key with its corresponding value when catching was started and for the rest the keys are the first 16 bytes of the id and contain id + seconds since start as a list
 def parse_ids():
     print("Parsing all ids...")
 
-    content = []
+    content = [] 
 
     # Read data of all exported files
     for subdir, dirs, files in os.walk("./ids"):
@@ -48,14 +48,19 @@ def parse_ids():
             content_tmp = f_tmp.readlines()
             f_tmp.close()
 
-            res = []
+            res = dict() 
 
             for c in content_tmp:
-                res.append(c.replace("\n", "").split(";"))
+                c_tmp = c.replace("\n", "").split(";")
+                if c_tmp == ['']:
+                    continue
+                key_tmp = bytes.fromhex(c_tmp[0])
+                res[key_tmp[:16]] = [bytes.fromhex(c_tmp[0]), int(c_tmp[1])]
 
             info = f.split("_")
 
-            res.insert(0, info[2:])
+            res["date"] = info[2]
+            res["time"] = info[3]
 
             content.append(res)
                 
