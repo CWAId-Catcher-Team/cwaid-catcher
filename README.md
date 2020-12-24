@@ -1,4 +1,6 @@
 # cwald-catcher
+## Notes
+Put your catched ids into the src/analyzer/ids directory and name it yourname_counter_date_time. Look into this directory and you see an example file.
 
 ## Meeting
 Time | Home
