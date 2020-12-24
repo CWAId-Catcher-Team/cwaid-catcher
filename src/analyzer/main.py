@@ -35,7 +35,7 @@ for i in teks_list[0].keys():
         tmp_s = i
         break
     
-print("First element of tek_list key_data: " + str(tmp_s) + " element: " + str(teks_list[0][tmp_s]))
+#print("First element of tek_list key_data: " + str(tmp_s) + " element: " + str(teks_list[0][tmp_s]))
 
 # parse all catched ids
 ids = parser.parse_ids()
@@ -47,16 +47,26 @@ for i in ids[0].keys():
     if tmp == 1:
         tmp_s = i
         break
-print("Date of first list: " + str(ids[0]["date"]) + ". Time of first list: " + str(ids[0]["time"]) + " first element of first ids list: " + str(ids[0][tmp_s]))
+#print("Date of first list: " + str(ids[0]["date"]) + ". Time of first list: " + str(ids[0]["time"]) + " first element of first ids list: " + str(ids[0][tmp_s]))
 
 
 #TODO: read line from parser. Loop through rolling_period and call tek_to_rpi on each TEK & intervall number where interval number = starting interal number + current loop index.
 key_scheduler = ks()
-rpi = key_scheduler.tek_to_rpi(bytes.fromhex("008edc9ec9d97f30dd06b3a58dcd969c"),2657808)
-print(str(rpi.hex()))
+#rpi = key_scheduler.tek_to_rpi(bytes.fromhex("008edc9ec9d97f30dd06b3a58dcd969c"),2657808)
+#print(str(rpi.hex()))
 
 
-print("Analysing catched teks and ids. This can take a while...")
+count_teks = 0
+
+for teks in teks_list:
+    count_teks += len(teks)
+
+count_ids = 0
+
+for id_element in ids:
+    count_ids += len(id_element)
+
+print("Analysing " + str(count_teks) + " downloaded teks and " + str(count_ids) + " catched ids. This can take a while...")
 
 if __name__ == "__main__":
     pool = Pool()
@@ -68,4 +78,4 @@ if __name__ == "__main__":
     for i in range(len(teks_list)):
         pool_list[i].get()
 
-    print("Done")
+    print("Done.")

@@ -42,11 +42,11 @@ def parse_tek(t_count):
             content[content_tmp[0]] = content_tmp
             c += 1
             if c % length == 0:
-                print("Adding " + str(len(content)) + " elements")
+                #print("Adding " + str(len(content)) + " elements")
                 content_list.append(content)
                 content = dict()
     
-    print("Adding " + str(len(content)) + " elements")
+    #print("Adding " + str(len(content)) + " elements")
     content_list.append(content)
 
     print("Done.")

@@ -1,6 +1,6 @@
 # cwald-catcher
 ## Notes
-Put your catched ids into the src/analyzer/ids directory and name it yourname_counter_date_time. Look into this directory and you see an example file.
+Put your catched ids into the src/analyzer/ids directory and name it yourname_counter_date_time, where date and time correspond to the time where you started your sensor. Look into this directory and you see an example file.
 
 ## Meeting
 Time | Home
