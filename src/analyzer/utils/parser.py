@@ -11,7 +11,7 @@ def parse_tek(t_count):
     tek_list_list = []
 
     # Read data of all exported files
-    for subdir in os.walk(config.TEK_EXPORT_DIRECTORY):
+    for subdir, dirnames, filenames in os.walk(config.TEK_EXPORT_DIRECTORY):
         for f in os.listdir(subdir):
             if f == "tek":
                 f = open(os.path.join(subdir, f), "rb")
@@ -61,7 +61,7 @@ def parse_ids():
     content = [] 
 
     # Read data of all exported files
-    for subdir in os.walk(config.CATCHED_RPI_DIRECTORY):
+    for subdir, dirnames, filenames in os.walk(config.CATCHED_RPI_DIRECTORY):
         for f in os.listdir(subdir):
             f_tmp = open(os.path.join(subdir, f), "r")
             content_tmp = f_tmp.readlines()
