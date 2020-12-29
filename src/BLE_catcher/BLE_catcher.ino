@@ -16,23 +16,25 @@
 
 using namespace std;
 
-int scanTime = 5; //In seconds
+const int scanTime = 5; // scan for 'scanTime' seconds
+const int scanDelay = 25; // pausing scan for 'scanDelay' seconds 
 BLEScan* pBLEScan;
 bool scan = true;
 const char * beaconFile = "/beacons.txt";
-deque<String> seenBeacons;
-int maxBeacons = 250;
+//deque<String> seenBeacons;
+//int maxBeacons = 200;
+
 
 void writeBeaconToFile(uint8_t* beacon, size_t len);
 
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
       if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(BLEUUID((uint16_t) 0xfd6f))){
-        //Serial.printf("Advertised Device: %s \n", advertisedDevice.toString().c_str());
 
         uint8_t* payload = advertisedDevice.getPayload();
         size_t len = advertisedDevice.getPayloadLength();
 
+        /**********
         // TODO: change string-deque to uint8_t-deque, transformation to hex is not necessary anymore here
         std::stringstream stream;
         stream << std::hex << std::setfill('0');
@@ -50,6 +52,9 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
             seenBeacons.pop_back();
           }
         }
+        ***********/
+        // version that does not use queue to prevent duplicates
+        writeBeaconToFile(payload + (len - 20), 20);
       }
       
     }
@@ -64,9 +69,9 @@ void setup() {
   Serial.println("Scanning...");
 
   BLEDevice::init("");
-  pBLEScan = BLEDevice::getScan(); //create new scan
+  pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
-  pBLEScan->setActiveScan(true); //active scan uses more power, but get results faster
+  pBLEScan->setActiveScan(false);
   pBLEScan->setInterval(100);
   pBLEScan->setWindow(99);  // less or equal setInterval value
 
@@ -105,7 +110,7 @@ void loop() {
       }
     }
   }
-  delay(15000);
+  delay(scanDelay * 1000);
 }
 
 void writeBeaconToFile(uint8_t * beacon, size_t len) {
