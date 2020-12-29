@@ -74,7 +74,7 @@ def parse_ids():
                 if c_tmp == ['']:
                     continue
                 key_tmp = bytes.fromhex(c_tmp[0])
-                res[key_tmp[:16]] = [bytes.fromhex(c_tmp[0]), int(c_tmp[1])]
+                res[key_tmp[:16]] = [bytes.fromhex(c_tmp[0]), int(c_tmp[1]), f]
 
             info = f.split("_")
 
