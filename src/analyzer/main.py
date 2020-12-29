@@ -17,7 +17,7 @@ def analyse_part(teks, tid):
         for i in range(tek[3]):
             rpi = key_scheduler.tek_to_rpi(tek[0], i + tek[2])
             for id_element in ids:
-                if rpi == id_element:
+                if rpi in id_element:
                     print("Found positive catched id! Rpi is: " + str(rpi) + " tek key data is: " + str(tek[0]) + " interval number is: " + str(i + tek[2]) + " id is: " + str(id_element[rpi]))
         c += 1
         if c % 5000 == 0:
