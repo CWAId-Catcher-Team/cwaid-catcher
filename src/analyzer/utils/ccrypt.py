@@ -67,7 +67,7 @@ class CryptoHelper:
         Returns:
             bytes: [description]
         """
-        cipher = AES.new(key, AES.MODE_CBC, initial_value=iv)
+        cipher = AES.new(key, AES.MODE_CTR, initial_value=iv)
         return cipher.decrypt(data) 
 
     
