@@ -1,4 +1,5 @@
 from utils.ccrypt import CryptoHelper as c
+import struct
 
 class KeyScheduler:
     """ Functions for Key Scheduling
@@ -16,24 +17,24 @@ class KeyScheduler:
         Returns:
             bytes: A byte representation of the RPI.
         """
-        rpik = self.crypto.hkdf(tke,None,"EN-RPIK".encode("utf-8"),16)
+        rpik = self.crypto.hkdf(tke,None,'EN-RPIK'.encode('utf-8'),16)
         enin = en_interval_number.to_bytes(4,'little')
-        padded_data = bytes().join([bytes("EN-RPI","utf-8"), bytes.fromhex("00 00 00 00 00 00"), enin])
+        padded_data = bytes().join([bytes('EN-RPI','utf-8'), bytes.fromhex('00 00 00 00 00 00'), enin])
         rpi = self.crypto.aes_ecb_encryption(rpik, padded_data)
         
         return rpi
 
     def decrypt_associated_metadata(self, tke: bytes, rpi: bytes, aem: bytes):
         #TODO implement length checks
-        aemk = self.crypto.hkdf(tke,None,"EN-RPIK".encode("utf-8"),16)
+        aemk = self.crypto.hkdf(tke,None,'EN-RPIK'.encode('utf-8'),16)
         data = self.crypto.aes_ctr_decryption(aemk, rpi, aem)
         
-        version_major_bitmap = 3
-        version_minor_bitmap = 12
-        version_major = data[0] & version_major_bitmap
-        version_minor = (data[0] & version_minor_bitmap) >> 2 
+        version_major_bitmap = 192
+        version_minor_bitmap = 48
+        version_major = (data[0] & version_major_bitmap) >> 6
+        version_minor = (data[0] & version_minor_bitmap) >> 4
 
-        return version_major,version_minor
+        return version_major,version_minor, int.from_bytes(data[1:2],'big', signed=True)
         #TODO Split into 4 bytes
         # A 4 byte Associated Encrypted Metadata that contains the following (LSB first):
         #i. Byte 0 — Versioning. 

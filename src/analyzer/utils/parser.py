@@ -74,10 +74,11 @@ def parse_ids():
                 if c_tmp == ['']:
                     continue
                 key_tmp = bytes.fromhex(c_tmp[0])
-                res[key_tmp[:16]] = [bytes.fromhex(c_tmp[0]), int(c_tmp[1]), f]
+                #                   key, time count, id set, aem
+                res[key_tmp[:16]] = [key_tmp[:16], int(c_tmp[1]),f, key_tmp[16:]]
 
             info = f.split("_")
-
+            # TODO: parse to unix time value that can be parsed by python internals instead of carrying two variables
             res["date"] = info[2]
             res["time"] = info[3]
 
