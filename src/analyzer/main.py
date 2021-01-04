@@ -8,6 +8,7 @@ from multiprocessing import Pool
 from multiprocessing import cpu_count 
 from multiprocessing import Manager
 from tinydb import TinyDB
+from datetime import datetime
 
 def analyse_part(teks, tid, matched_tek_objects):
     print("Thread" + str(tid) + " Analysing " + str(len(teks)) + " temporary exposure keys.")
@@ -61,7 +62,9 @@ teks_list = parser.parse_tek(cpu_count())
 ids = parser.parse_ids()
     
 if __name__ == "__main__":    
-    db = TinyDB('./database/db.json')
+
+    s = datetime.now().strftime('%m_%d_%Y_%H%M%S')
+    db = TinyDB('./database/db_{}.json'.format(s))
     count_teks = 0
 
     for teks in teks_list:
