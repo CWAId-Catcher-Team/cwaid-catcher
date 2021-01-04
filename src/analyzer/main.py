@@ -44,7 +44,7 @@ def analyse_part(teks, tid, matched_tek_objects):
     #    if tmp == 1:
     #        tmp_s = i
     #        break
-        
+    # TODO:   
     #print("First element of tek_list key_data: " + str(tmp_s) + " element: " + str(teks_list[0][tmp_s]))
     #tmp = 0
     #tmp_s = ""
@@ -86,6 +86,7 @@ if __name__ == "__main__":
 
     for i in range(len(teks_list)):
         pool_list[i].get()
+        
     print(matched_tek_objects)
     db.insert(dict(matched_tek_objects))
     

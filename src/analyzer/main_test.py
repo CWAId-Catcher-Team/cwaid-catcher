@@ -36,15 +36,15 @@ AEM_TEST_FORMAT_STRING = 'Version: {}.{}. Power Level: {}'
 
 v_major,v_minor, pl = key_scheduler.decrypt_associated_metadata(tek, rpi2, b'\xa4\xe4H\x9c')
 #print(AEM_TEST_FORMAT_STRING.format(v_major,v_minor, pl))
-assert v_major == 3, 'Expected major version of {}, but got {}.'.format(3, v_major)
-assert v_minor == 0, 'Expected minor version of {}, but got {}.'.format(0, v_minor)
+assert v_major == 1, 'Expected major version of {}, but got {}.'.format(3, v_major)
+assert v_minor == 1, 'Expected minor version of {}, but got {}.'.format(0, v_minor)
 assert pl <= 128 and pl >= -128, 'Wrong transmission power level. Expected {}, but got {}.'.format("value between -128 and 128", pl)
 #assert aem == res, 'aem is wrong'
 
 v_major,v_minor, pl = key_scheduler.decrypt_associated_metadata(tek, rpi1, b'=\x16p1')
 #print(AEM_TEST_FORMAT_STRING.format(v_major,v_minor, pl))
-assert v_major == 0, 'Expected major version of {}, but got {}.'.format(0, v_major)
-assert v_minor == 0, 'Expected minor version of {}, but got {}.'.format(0, v_minor)
+assert v_major == 1, 'Expected major version of {}, but got {}.'.format(0, v_major)
+assert v_minor == 1, 'Expected minor version of {}, but got {}.'.format(0, v_minor)
 assert pl <= 128 and pl >= -128, 'Wrong transmission power level. Expected {}, but got {}.'.format("value between -128 and 128", pl)
 #res = ''
 #assert aem == res, 'aem is wrong'
@@ -52,12 +52,12 @@ assert pl <= 128 and pl >= -128, 'Wrong transmission power level. Expected {}, b
 v_major,v_minor, pl = key_scheduler.decrypt_associated_metadata(tek2, rpi3, b'\xa2Y\xa9w')
 #print(AEM_TEST_FORMAT_STRING.format(v_major,v_minor, pl))
 assert v_major == 1, 'Expected major version of {}, but got {}.'.format(1, v_major)
-assert v_minor == 0, 'Expected minor version of {}, but got {}.'.format(0, v_minor)
+assert v_minor == 1, 'Expected minor version of {}, but got {}.'.format(0, v_minor)
 assert pl <= 128 and pl >= -128, 'Wrong transmission power level. Expected {}, but got {}.'.format("value between -128 and 128", pl)
 
 v_major,v_minor, pl = key_scheduler.decrypt_associated_metadata(tek3, rpi4, b'\xaeo\xa6/')
 #print(AEM_TEST_FORMAT_STRING.format(v_major,v_minor, pl))
-assert v_major == 2, 'Expected major version of {}, but got {}.'.format(2, v_major)
+assert v_major == 1, 'Expected major version of {}, but got {}.'.format(2, v_major)
 assert v_minor == 1, 'Expected minor version of {}, but got {}.'.format(1, v_minor)
 assert pl <= 128 and pl >= -128, 'Wrong transmission power level. Expected {}, but got {}.'.format("value between -128 and 128", pl)
 

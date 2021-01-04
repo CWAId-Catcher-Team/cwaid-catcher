@@ -26,7 +26,7 @@ class KeyScheduler:
 
     def decrypt_associated_metadata(self, tke: bytes, rpi: bytes, aem: bytes):
         #TODO implement length checks
-        aemk = self.crypto.hkdf(tke,None,'EN-RPIK'.encode('utf-8'),16)
+        aemk = self.crypto.hkdf(tke,None,'EN-AEMK'.encode('utf-8'),16)
         data = self.crypto.aes_ctr_decryption(aemk, rpi, aem)
         
         version_major_bitmap = 192
