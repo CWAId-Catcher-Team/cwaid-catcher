@@ -9,7 +9,8 @@ const char* beaconFile = "/beacons.txt";
 void setup() {
   Serial.begin(115200);
 
-  if (!SPIFFS.begin(false)) {
+  delay(5000);
+  if (!SPIFFS.begin(true)) {
     Serial.println("Error while initializing SPIFFS!");
     while (true){}
   }
@@ -51,6 +52,17 @@ void loop() {
         Serial.println("Beacon file does not exist.");
       }
 
+    // only use if write function only included beacons, no timestamps
+    } else if (input.equals("readv1")) {
+      if (beaconFileExists) {
+        Serial.println("Reading beacons from file with version 1 (beacons only):");
+        File file = SPIFFS.open(beaconFile, FILE_READ);
+        while(file.available()){
+          Serial.write(file.read());
+        }
+        file.close();
+        Serial.println("All beacons displayed with read v1 (beacons only).");
+      }
     } else if (input.equals("delete")) {
       Serial.println("Deleting beacon file:");
       Serial.printf("Deletion of beacons file successful == %s\n", SPIFFS.remove(beaconFile) ? "true" : "false");
