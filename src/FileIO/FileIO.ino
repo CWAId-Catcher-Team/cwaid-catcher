@@ -8,14 +8,12 @@ const char* beaconFile = "/beacons.txt";
 
 void setup() {
   Serial.begin(115200);
-
   delay(5000);
-  if (!SPIFFS.begin(true)) {
+  if (!SPIFFS.begin(false)) {
     Serial.println("Error while initializing SPIFFS!");
     while (true){}
   }
-
-  delay(5000);
+  
   beaconFileExists = SPIFFS.exists(beaconFile);
   if (beaconFileExists) {
     Serial.println("Beacons file exists in flash memory.");
