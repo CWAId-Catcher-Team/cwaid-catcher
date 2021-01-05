@@ -61,6 +61,37 @@ void loop() {
         file.close();
         Serial.println("All beacons displayed with read v1 (beacons only).");
       }
+
+    } else if (input.equals("customRead")) {
+      int noOfOldBeacons = 15;
+      Serial.println("Custom read from file:");
+      File file = SPIFFS.open(beaconFile, FILE_READ);
+      int count = 0;
+      while (file.available()) {
+        char c = file.read();
+        Serial.write(c);
+        if (c == '\n') {
+          count++;
+          if (count == noOfOldBeacons) {
+            break;
+          }
+        }
+      }
+      while (file.available()) {
+        uint8_t beacon[20];
+        uint8_t timeArray[3];
+        file.read(beacon, sizeof(beacon));
+        file.read(timeArray, sizeof(timeArray));
+          
+        std::stringstream stream;
+        stream << std::hex << std::setfill('0');
+        for (size_t i = 0; i < sizeof(beacon); i++) {
+          stream << std::hex << std::setw(2) << (unsigned int) beacon[i];
+        }
+        uint32_t currentTime = (uint32_t) timeArray[0] << 16 | (uint16_t) timeArray[1] << 8 | timeArray[2];
+        std::cout << stream.str() << ";" << currentTime << std::endl;
+      }
+  
     } else if (input.equals("delete")) {
       Serial.println("Deleting beacon file:");
       Serial.printf("Deletion of beacons file successful == %s\n", SPIFFS.remove(beaconFile) ? "true" : "false");
