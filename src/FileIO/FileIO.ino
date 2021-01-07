@@ -26,9 +26,9 @@ void setup() {
 void loop() {
   if (Serial.available()) {
     String input = Serial.readStringUntil('\n');
-    if(input.equals("read")) {
+    if(input.equals("readv2")) {
       if (beaconFileExists) {
-        Serial.println("Reading beacons from file:");
+        Serial.println("Reading beacons from file with version 2 (beacons, timestamp):");
         File file = SPIFFS.open(beaconFile, FILE_READ);
         while(file.available()){
           uint8_t beacon[20];
@@ -45,7 +45,7 @@ void loop() {
           std::cout << stream.str() << ";" << currentTime << std::endl;
         }
         file.close();
-        Serial.println("All beacons displayed.");
+        Serial.println("All beacons displayed with read v2 (beacons and timestamp only).");
       } else {
         Serial.println("Beacon file does not exist.");
       }
@@ -62,6 +62,29 @@ void loop() {
         Serial.println("All beacons displayed with read v1 (beacons only).");
       }
 
+    } else if (input.equals("readv3")) {
+      if (beaconFileExists) {
+        Serial.println("Reading beacons from file with version 3 (beacons, timestamp, rssi):");
+        File file = SPIFFS.open(beaconFile, FILE_READ);
+        while (file.available()) {
+          uint8_t beacon[20];
+          uint8_t metadata[4];
+          file.read(beacon, sizeof(beacon));
+          file.read(metadata, sizeof(metadata));
+
+          std::stringstream stream;
+          stream << std::hex << std::setfill('0');
+          for (size_t i = 0; i < sizeof(beacon); i++) {
+            stream << std::hex << std::setw(2) << (unsigned int) beacon[i];
+          }
+          uint32_t currentTime = (uint32_t) metadata[0] << 16 | (uint16_t) metadata[1] << 8 | metadata[2];
+          std::cout << stream.str() << ";" << currentTime << ";" << +int8_t(metadata[3]) << std::endl;
+        }
+        file.close();
+        Serial.println("All beacons displayed with read v3 (beacons, timestamp, rssi).");
+      }
+
+      
     } else if (input.equals("customRead")) {
       int noOfOldBeacons = 15;
       Serial.println("Custom read from file:");
