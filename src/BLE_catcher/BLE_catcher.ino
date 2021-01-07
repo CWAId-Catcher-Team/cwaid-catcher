@@ -12,7 +12,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-#include <deque>
+//#include <deque>
 
 using namespace std;
 
@@ -25,7 +25,7 @@ const char * beaconFile = "/beacons.txt";
 //int maxBeacons = 200;
 
 
-void writeBeaconToFile(uint8_t* beacon, size_t len);
+void writeBeaconToFile(uint8_t* beacon, size_t len, int rssi);
 
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
@@ -33,6 +33,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
         uint8_t* payload = advertisedDevice.getPayload();
         size_t len = advertisedDevice.getPayloadLength();
+        int rssi = advertisedDevice.getRSSI();
 
         /**********
         // TODO: change string-deque to uint8_t-deque, transformation to hex is not necessary anymore here
@@ -42,8 +43,8 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
           stream << std::hex << std::setw(2) << (unsigned int) payload[i];
         }
         std::string beacon = stream.str();
-        cout << "Logged beacon: " << beacon.c_str() << endl;
-
+        cout << "Logged beacon: " << beacon.c_str() << ";" << rssi << endl;
+        
         if (std::find(seenBeacons.begin(), seenBeacons.end(), beacon.c_str()) == seenBeacons.end()) {
           // only last 20 bytes of interest; for 31 bytes frame, skip leading 11 bytes; for 28 bytes frame, skip leading 8 bytes
           writeBeaconToFile(payload + (len - 20), 20);
@@ -54,7 +55,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
         }
         ***********/
         // version that does not use queue to prevent duplicates
-        writeBeaconToFile(payload + (len - 20), 20);
+        writeBeaconToFile(payload + (len - 20), 20, rssi);
       }
       
     }
@@ -110,10 +111,11 @@ void loop() {
       }
     }
   }
+  cout << "Scan done." << endl;
   delay(scanDelay * 1000);
 }
 
-void writeBeaconToFile(uint8_t * beacon, size_t len) {
+void writeBeaconToFile(uint8_t * beacon, size_t len, int rssi) {
   // seems to write in pages of 251 bytes length
   if (SPIFFS.totalBytes() - SPIFFS.usedBytes() > 256) {
     File file = SPIFFS.open(beaconFile, FILE_APPEND);
@@ -128,6 +130,8 @@ void writeBeaconToFile(uint8_t * beacon, size_t len) {
       for (size_t j = 0; j < sizeof(timeArray); j++) {
         file.write(timeArray[j]);
       }
+      // least significant byte of rssi should be enough, can represent [-128,127], transform to (unsigned) byte to store
+      file.write((uint8_t) rssi);
     }
     file.close();
     cout << "New beacon written to file." << endl;
@@ -148,17 +152,19 @@ void readFile(fs::FS &fs, const char * path){
       File file = SPIFFS.open(path, FILE_READ);
         while(file.available()){
           uint8_t beacon[20];
-          uint8_t timeArray[3];
+          uint8_t metadata[4];
           file.read(beacon, sizeof(beacon));
-          file.read(timeArray, sizeof(timeArray));
-          
+          // first 3 bytes correspond to timestamp, 4th byte represents rssi
+          file.read(metadata, sizeof(metadata));
+
           std::stringstream stream;
           stream << std::hex << std::setfill('0');
           for (size_t i = 0; i < sizeof(beacon); i++) {
             stream << std::hex << std::setw(2) << (unsigned int) beacon[i];
           }
-          uint32_t currentTime = (uint32_t) timeArray[0] << 16 | (uint16_t) timeArray[1] << 8 | timeArray[2];
-          cout << stream.str() << ";" << currentTime << endl;
+          uint32_t currentTime = (uint32_t) metadata[0] << 16 | (uint16_t) metadata[1] << 8 | metadata[2];
+          // use + to promote int8_t to a type printable as a number, transform rssi byte back to signed 8-bit integer
+          cout << stream.str() << ";" << currentTime << ";" << +int8_t(metadata[3]) << endl;
         }
         file.close();
  }
