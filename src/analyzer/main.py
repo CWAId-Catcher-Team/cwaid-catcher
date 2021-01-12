@@ -2,40 +2,35 @@
 #   pycryptdome: python -m pip install pycryptodome
 #   protobuf: python -m pip install protobuf
 #   tinydb: python -m pip install tinydb
+import os
+import pickle
+from utils.config import ApplicationConfig as config
 from utils.keys import KeyScheduler as ks
 import utils.parser as parser
-from multiprocessing import Pool
-from multiprocessing import cpu_count 
-from multiprocessing import Manager
 from tinydb import TinyDB
 from datetime import datetime
 
-def analyse_part(teks, tid, matched_tek_objects):
-    print("Thread" + str(tid) + " Analysing " + str(len(teks)) + " temporary exposure keys.")
+def analyse_part(teks):
     key_scheduler = ks()
    
     c = 0
-    # loop over each catched tek and calculate for each possible interval number the rpi and search if its is contained in the catched ids
+    # loop over each tek and look for each rpi if it is contained in the catched ids
     for key in teks:
         tek = teks[key]
-        for i in range(tek[3]):
-            rpi = key_scheduler.tek_to_rpi(tek[0], i + tek[2])
+        for rpi in tek[6]:
             for id_element in ids:            
                 if rpi in id_element:
                     # result is a list containing one list for tek - and one for rpi associated data
                     result = []
                     # convert byte objects to hex strings, cause database cant store bytes
-                    tek_list = tek[1:]
+                    tek_list = tek[1:6]
                     tek_list.insert(0,tek[0].hex())
                     result.append(tek_list)
                     rpi_list = id_element.get(rpi)
                     result.append([rpi_list[0].hex(),rpi_list[1],rpi_list[2],rpi_list[3].hex()])
                     # add result to global dictionary 
                     matched_tek_objects[rpi.hex()] = result
-                    print("Found positive catched id! Rpi is: " + str(rpi) + " tek key data is: " + str(tek[0]) + " interval number is: " + str(i + tek[2]) + " id is: " + str(id_element[rpi]))
-        c += 1
-        if c % 5000 == 0:
-            print(str(c) + "/" + str(len(teks)) + " teks done in thread " + str(tid))
+                    print("Found positive catched id! Rpi is: " + str(rpi) + ". Found in list of teks from date: " + teks["date"] + ". Tek key data is: " + str(tek[0]) + ". Id element content is: " + str(id_element[rpi]))
 
     #tmp = 0
     #tmp_s = ""
@@ -55,11 +50,21 @@ def analyse_part(teks, tid, matched_tek_objects):
     #        break
     #print("Date of first list: " + str(ids[0]["date"]) + ". Time of first list: " + str(ids[0]["time"]) + " first element of first ids list: " + str(ids[0][tmp_s]))
 
-# get all teks downloaded from cwa server
-teks_list = parser.parse_tek(cpu_count())
+# Get teks as list of directories where each element is a directory of the tek list of one day 
+print("Parsing teks...")
+teks_list = []
+for subdir, dirnames, filenames in os.walk(config.TEK_PARSED_DIRECTORY):
+    for f in os.listdir(subdir):
+        with open(os.path.join(subdir, f), "rb") as f_tek:
+            teks_list.append(pickle.load(f_tek))
+print("Done.")
 
-# parse all catched ids
+
+# Parse all catched ids
 ids = parser.parse_ids()
+
+# Here all found rips will be stored
+matched_tek_objects = dict() 
     
 if __name__ == "__main__":    
 
@@ -68,29 +73,23 @@ if __name__ == "__main__":
     count_teks = 0
 
     for teks in teks_list:
-        count_teks += len(teks)
+        count_teks += len(teks) - 1
     count_ids = 0
 
     for id_element in ids:
         count_ids += len(id_element)
 
-    print("Analysing " + str(count_teks) + " downloaded teks and " + str(count_ids) + " catched ids. This can take a while...")
-    
-    pool = Pool()
-    pool_list = []
-    manager = Manager()
-    matched_tek_objects = manager.dict()   
-  
-    for i in range(len(teks_list)):      
-        pool_list.append(pool.apply_async(analyse_part, [teks_list[i], i, matched_tek_objects]))
+    print("Analysing " + str(count_teks) + " downloaded teks and " + str(count_ids) + " catched ids...")
 
-    for i in range(len(teks_list)):
-        pool_list[i].get()
-        
+    for teks in teks_list:
+        analyse_part(teks)
+
+    print("Done.")
+    
+    print("Results:")
     print(matched_tek_objects)
-    db.insert(dict(matched_tek_objects))
+    db.insert(matched_tek_objects)
     
     #for item in db:
     #    print(item)
 
-    print("Finished.")

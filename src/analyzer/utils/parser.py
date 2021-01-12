@@ -1,6 +1,8 @@
 import os
 import utils.temporary_exposure_key_export_pb2 as temporary_exposure_key_export_pb2
 from utils.config import ApplicationConfig as config
+
+# NOT USED
 # Parses all teks from the exports and returns a list of dicts of lists of tek data, where a list contains up to 25000 elements and where the key is the key_data of tek
 def parse_tek(t_count):
     print("Parsing data of exported temporary exposure key binaries...")
@@ -75,7 +77,7 @@ def parse_ids():
                     continue
                 key_tmp = bytes.fromhex(c_tmp[0])
                 #                   key, time count, id set, aem
-                res[key_tmp[:16]] = [key_tmp[:16], int(c_tmp[1]),f, key_tmp[16:]]
+                res[key_tmp[:16]] = [key_tmp[:16], int(c_tmp[1]), f, key_tmp[16:]]
 
             info = f.split("_")
             # TODO: parse to unix time value that can be parsed by python internals instead of carrying two variables
