@@ -55,6 +55,8 @@ print("Parsing teks...")
 teks_list = []
 for subdir, dirnames, filenames in os.walk(config.TEK_PARSED_DIRECTORY):
     for f in os.listdir(subdir):
+        if f == "teks":
+            continue
         with open(os.path.join(subdir, f), "rb") as f_tek:
             teks_list.append(pickle.load(f_tek))
 print("Done.")
