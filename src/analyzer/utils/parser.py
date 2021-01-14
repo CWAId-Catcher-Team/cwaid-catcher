@@ -1,7 +1,7 @@
 import os
 import utils.temporary_exposure_key_export_pb2 as temporary_exposure_key_export_pb2
 from utils.config import ApplicationConfig as config
-
+import datetime as d
 # NOT USED
 # Parses all teks from the exports and returns a list of dicts of lists of tek data, where a list contains up to 25000 elements and where the key is the key_data of tek
 def parse_tek(t_count):
@@ -70,19 +70,36 @@ def parse_ids():
             f_tmp.close()
 
             res = dict() 
-
+            info = f.split("_")
+            date = info[2]
+            time = info[3]
+            base_date_time = d.datetime.strptime(date+time,'%Y%m%d%H%M%S')
+            
             for c in content_tmp:
                 c_tmp = c.replace("\n", "").split(";")
                 if c_tmp == ['']:
                     continue
-                key_tmp = bytes.fromhex(c_tmp[0])
-                #                   key, time count, id set, aem
-                res[key_tmp[:16]] = [key_tmp[:16], int(c_tmp[1]), f, key_tmp[16:]]
 
-            info = f.split("_")
+                key_tmp = bytes.fromhex(c_tmp[0])
+                key_val = key_tmp[:16]
+                #duplicate detected
+                if key_val in res:
+                    # Trim counter at index 4, if counter is always last use -1 instead
+                    basic_infos = res.get(key_val)[:4]
+                    # Increment counter var
+                    counter = res.get(key_val)[4] + 1
+                    # write back to dict
+                    res[key_val] = basic_infos + [counter]
+                else:
+                    # compute absolute time by adding the stored offset for each id to the base_date_time
+                    timedelta = base_date_time + d.timedelta(seconds=int(c_tmp[1]))
+                     #                key, time count as float timestamp, id set, aem, duplicate_counter
+                    res[key_val] = [key_val,timedelta.timestamp(), f, key_tmp[16:], 0]
+
+            
             # TODO: parse to unix time value that can be parsed by python internals instead of carrying two variables
-            res["date"] = info[2]
-            res["time"] = info[3]
+            res["date"] = date
+            res["time"] = time
 
             content.append(res)
                 

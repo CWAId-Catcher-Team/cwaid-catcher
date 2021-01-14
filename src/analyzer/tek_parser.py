@@ -72,6 +72,7 @@ def parse_tek():
     for subdir, dirnames, filenames in os.walk(config.TEK_EXPORT_DIRECTORY):
         # Get date of tek directory
         subdirname = subdir.split('/')[-1]
+        subdirname = os.path.basename(os.path.normpath(subdirname))
         # If already parsed tek for this date continue
         if subdirname in parsed_teks:
             continue
@@ -93,5 +94,5 @@ def parse_tek():
 
     print("Done.")
 
-
-parse_tek()
+if __name__ == '__main__':
+    parse_tek()

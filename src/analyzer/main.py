@@ -26,8 +26,9 @@ def analyse_part(teks):
                     tek_list = tek[1:6]
                     tek_list.insert(0,tek[0].hex())
                     result.append(tek_list)
-                    rpi_list = id_element.get(rpi)
-                    result.append([rpi_list[0].hex(),rpi_list[1],rpi_list[2],rpi_list[3].hex()])
+                    rpi_list = id_element.get(rpi)     
+                    #  key, time count, id set, aem,duplicate_counter           
+                    result.append([rpi_list[0].hex(),rpi_list[1],rpi_list[2],rpi_list[3].hex(), rpi_list[4]])
                     # add result to global dictionary 
                     matched_tek_objects[rpi.hex()] = result
                     print("Found positive catched id! Rpi is: " + str(rpi) + ". Found in list of teks from date: " + teks["date"] + ". Tek key data is: " + str(tek[0]) + ". Id element content is: " + str(id_element[rpi]))
