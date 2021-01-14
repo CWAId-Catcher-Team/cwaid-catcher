@@ -64,8 +64,9 @@ def parse_tek():
         for f in os.listdir(subdir):
             parsed_teks.append(f)
 
-    print("Already parsed teks for these dates:")
-    print(str(parsed_teks))
+    if len(parsed_teks):
+        print("Already parsed teks for these dates:")
+        print(str(parsed_teks))
 
     to_parse = []
     # Find all tek files which are not already parsed 

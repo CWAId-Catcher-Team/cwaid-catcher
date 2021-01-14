@@ -9,8 +9,9 @@ from utils.keys import KeyScheduler as ks
 import utils.parser as parser
 from tinydb import TinyDB
 from datetime import datetime
+import tek_parser
 
-def analyse_part(teks):
+def analyse_part(teks,ids):
     key_scheduler = ks()
    
     c = 0
@@ -51,34 +52,36 @@ def analyse_part(teks):
     #        break
     #print("Date of first list: " + str(ids[0]["date"]) + ". Time of first list: " + str(ids[0]["time"]) + " first element of first ids list: " + str(ids[0][tmp_s]))
 
-# Get teks as list of directories where each element is a directory of the tek list of one day 
-print("Parsing teks...")
-teks_list = []
-for subdir, dirnames, filenames in os.walk(config.TEK_PARSED_DIRECTORY):
-    for f in os.listdir(subdir):
-        if f == "teks":
-            continue
-        with open(os.path.join(subdir, f), "rb") as f_tek:
-            teks_list.append(pickle.load(f_tek))
-print("Done.")
 
-
-# Parse all catched ids
-ids = parser.parse_ids()
-
-# Here all found rips will be stored
-matched_tek_objects = dict() 
     
 if __name__ == "__main__":    
+        # Parse all catched ids
+    ids = parser.parse_ids()
+
+    # Here all found rips will be stored
+    matched_tek_objects = dict() 
+    # Get teks as list of directories where each element is a directory of the tek list of one day 
+    print("Parsing teks...")
+    teks_list = []
+    for subdir, dirnames, filenames in os.walk(config.TEK_PARSED_DIRECTORY):
+        for f in os.listdir(subdir):
+            if f == "teks":
+                continue
+            with open(os.path.join(subdir, f), "rb") as f_tek:
+                teks_list.append(pickle.load(f_tek))
+    print("Done.")
 
     s = datetime.now().strftime('%m_%d_%Y_%H%M%S')
     db = TinyDB('./database/db_{}.json'.format(s))
-    count_teks = 0
 
+    count_teks = 0
     for teks in teks_list:
         count_teks += len(teks) - 1
-    count_ids = 0
+    if not count_teks:
+        print('No Teks in {}, trying to create tek lookup data now...'.format(config.TEK_PARSED_DIRECTORY))
+        tek_parser.parse_tek()
 
+    count_ids = 0
     for id_element in ids:
         count_ids += len(id_element)
 
@@ -86,8 +89,6 @@ if __name__ == "__main__":
 
     for teks in teks_list:
         analyse_part(teks)
-
-    print("Done.")
     
     print("Results:")
     print(matched_tek_objects)
