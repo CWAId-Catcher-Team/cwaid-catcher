@@ -14,6 +14,16 @@ print()
 
 # Read files and analyze ids
 for f in files:
+    # Parse people count from filename
+    index = 0
+    for c in f[1][5:]:
+        if not c.isdigit():
+            break
+        index += 1
+    people_count = int(f[1][5:5+index])
+    print("[" + f[1] + "] Count of people: " + str(people_count))
+
+    # Read file
     with open(os.path.join(f[0], f[1]), "rb") as f_ids:
        ids = f_ids.readlines()
     print("[" + f[1] + "] Count of all ids: " + str(len(ids)))
@@ -26,6 +36,14 @@ for f in files:
         parts = i.split(b";")
         ids_unique[parts[0]].append(int(parts[1]))
     print("[" + f[1] + "] Count of all unique ids: " + str(len(ids_unique)))
+
+    # Calculate percentage of unique ids to ids
+    percentage = int(100 * len(ids_unique) / len(ids))
+    print("[" + f[1] + "] % unique ids in all ids: " + str(percentage))
+
+    # Calculate percentage of corona warn app users
+    percentage = int(100 * len(ids_unique) / people_count)
+    print("[" + f[1] + "] % of CWA users: " + str(percentage))
 
     # Calculate average stay in sensor range for same id
     # Only meaningful if scan delay time is short (e.g. < 10s)
