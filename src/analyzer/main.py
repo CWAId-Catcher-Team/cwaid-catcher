@@ -88,7 +88,7 @@ if __name__ == "__main__":
     print("Analysing " + str(count_teks) + " downloaded teks and " + str(count_ids) + " catched ids...")
 
     for teks in teks_list:
-        analyse_part(teks)
+        analyse_part(teks,ids)
     
     print("Results:")
     print(matched_tek_objects)
