@@ -94,7 +94,7 @@ def parse_ids():
                     # compute absolute time by adding the stored offset for each id to the base_date_time
                     timedelta = base_date_time + d.timedelta(seconds=int(c_tmp[1]))
                      #                key, time count as float timestamp, id set, aem, duplicate_counter
-                    res[key_val] = [key_val,timedelta.timestamp(), f, key_tmp[16:], 0]
+                    res[key_val] = [key_val,timedelta.timestamp(), f, key_tmp[16:], 1]
 
             
             # TODO: parse to unix time value that can be parsed by python internals instead of carrying two variables
