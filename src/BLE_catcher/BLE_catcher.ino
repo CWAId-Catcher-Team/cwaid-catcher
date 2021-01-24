@@ -12,12 +12,12 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-#include <deque>
+//#include <deque>
 
 using namespace std;
 
-const int scanTime = 10; // scan for 'scanTime' seconds
-const int scanDelay = 0; // pausing scan for 'scanDelay' seconds 
+const int scanTime = 5; // scan for 'scanTime' seconds
+const uint64_t sleepTime = 24; // pausing scan for 'sleepTime'+1 seconds
 BLEScan* pBLEScan;
 bool scan = true;
 const char * beaconFile = "/beacons.txt";
@@ -110,7 +110,10 @@ void loop() {
       }
     }
   }
-  delay(scanDelay * 1000);
+  cout << "Scan done." << endl; 
+  delay(1000);
+  esp_sleep_enable_timer_wakeup(sleepTime * 1000000ULL);
+  esp_light_sleep_start();
 }
 
 void writeBeaconToFile(uint8_t * beacon, size_t len) {
