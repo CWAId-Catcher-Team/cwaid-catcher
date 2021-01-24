@@ -16,8 +16,8 @@
 
 using namespace std;
 
-const int scanTime = 5; // scan for 'scanTime' seconds
-const int scanDelay = 25; // pausing scan for 'scanDelay' seconds 
+const int scanTime = 5; // scan for 'scanTime' seconds 
+const uint64_t sleepTime = 24; // pausing scan for 'sleepTime'+1 seconds
 BLEScan* pBLEScan;
 bool scan = true;
 const char * beaconFile = "/beacons.txt";
@@ -44,7 +44,6 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
         }
         std::string beacon = stream.str();
         cout << "Logged beacon: " << beacon.c_str() << ";" << rssi << endl;
-        
         if (std::find(seenBeacons.begin(), seenBeacons.end(), beacon.c_str()) == seenBeacons.end()) {
           // only last 20 bytes of interest; for 31 bytes frame, skip leading 11 bytes; for 28 bytes frame, skip leading 8 bytes
           writeBeaconToFile(payload + (len - 20), 20);
@@ -111,8 +110,10 @@ void loop() {
       }
     }
   }
-  cout << "Scan done." << endl;
-  delay(scanDelay * 1000);
+  cout << "Scan done." << endl; 
+  delay(1000);
+  esp_sleep_enable_timer_wakeup(sleepTime * 1000000ULL);
+  esp_light_sleep_start();
 }
 
 void writeBeaconToFile(uint8_t * beacon, size_t len, int rssi) {
