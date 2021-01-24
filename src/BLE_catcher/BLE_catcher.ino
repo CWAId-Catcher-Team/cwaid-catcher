@@ -16,7 +16,7 @@
 
 using namespace std;
 
-const int scanTime = 30; // scan for 'scanTime' seconds
+const int scanTime = 10; // scan for 'scanTime' seconds
 const int scanDelay = 0; // pausing scan for 'scanDelay' seconds 
 BLEScan* pBLEScan;
 bool scan = true;
