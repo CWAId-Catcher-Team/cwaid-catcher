@@ -30,10 +30,21 @@ void writeBeaconToFile(uint8_t* beacon, size_t len);
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
       if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(BLEUUID((uint16_t) 0xfd6f))){
-
+        
         uint8_t* payload = advertisedDevice.getPayload();
-        size_t len = advertisedDevice.getPayloadLength();
-
+        size_t len = advertisedDevice.getPayloadLength();       
+        
+        int os = 0;
+        //TODO store os beacon file
+        if ((unsigned int)payload[0] == 3){
+          //Flag section missing means Android NE API 
+          //Android
+          os = 1;
+        }
+        else {
+          //ios
+          os = 2;
+        }
         /**********
         // TODO: change string-deque to uint8_t-deque, transformation to hex is not necessary anymore here
         std::stringstream stream;
