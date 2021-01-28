@@ -73,7 +73,10 @@ def parse_ids():
             info = f.split("_")
             date = info[2]
             time = info[3]
-            base_date_time = d.datetime.strptime(date+time,'%Y%m%d%H%M%S')
+            try:
+                base_date_time = d.datetime.strptime(date+time,'%Y%m%d%H%M%S')
+            except:
+                print("Error reading date of filename. Filename: " + f)
             
             for c in content_tmp:
                 c_tmp = c.replace("\n", "").split(";")
