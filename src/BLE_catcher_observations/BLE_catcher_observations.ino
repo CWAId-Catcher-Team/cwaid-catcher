@@ -55,7 +55,6 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
         ***********/
         
         appendBeaconToBuffer(payload + (len - 20), 20, metadata, sizeof(metadata));
-        //writeBeaconToFile(payload + (len - 20), 20, rssi);
       }
       
     }
@@ -94,6 +93,7 @@ void loop() {
   if (scan) {
     BLEScanResults foundDevices = pBLEScan->start(scanTime, false);
     pBLEScan->clearResults();
+    cout << "Scan done. Found " << beaconBuf.size() / 24 << " beacons."<< endl; 
     writeBeaconsToFile();
   }
  
@@ -114,7 +114,7 @@ void loop() {
       }
     }
   }
-  cout << "Scan done. Found " << beaconBuf.size() / 24 << " beacons."<< endl; 
+  
   delay(sleepTime * 1000);
 }
 
@@ -138,6 +138,7 @@ void writeBeaconsToFile() {
     }
     file.close();
     cout << "New beacons written to file." << endl;
+    beaconBuf.clear();
     Serial.printf("Used Bytes: %d\n", SPIFFS.usedBytes());
   } else {
     scan = false;
