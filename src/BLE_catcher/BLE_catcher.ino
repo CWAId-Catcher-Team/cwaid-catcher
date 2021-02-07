@@ -24,41 +24,41 @@ void appendBeaconToBuffer(uint8_t* beacon, size_t beaconLen, uint8_t* metadata, 
 
 
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
-    void onResult(BLEAdvertisedDevice advertisedDevice) {
-      if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(BLEUUID((uint16_t) 0xfd6f))){
+  void onResult(BLEAdvertisedDevice advertisedDevice) {
+    if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(BLEUUID((uint16_t) 0xfd6f))) {
 
-        // payload of BLE frame
-        uint8_t* payload = advertisedDevice.getPayload();
-        size_t len = advertisedDevice.getPayloadLength();       
+      // payload of BLE frame
+      uint8_t* payload = advertisedDevice.getPayload();
+      size_t len = advertisedDevice.getPayloadLength();       
 
-        // metadata
-        uint64_t currentTime = esp_timer_get_time() / 1000000;
+      // metadata
+      uint64_t currentTime = esp_timer_get_time() / 1000000;
 
-        // encoding: 01(64) = Android, 10(128) = iOS, 11(192) = header as expected, but payload length differs, 00(0) = unexpected format
-        uint8_t os = 0;
-        if ((unsigned int) payload[0] == 3) { // Android (lacks flag section)
-          os = (len == 28) ? 64 : 192;
-        } else if ((unsigned int) payload[0] == 2 && len == 31) { //iOS
-          os = (len == 31) ? 128 : 192;
-        }
-
-        // 22 bits can represent 48 days as seconds, use 2 most significant bits of 3-byte metadata to encode information about BLE frame format
-        uint8_t metadata[] = {(currentTime >> 16) + os, (currentTime >> 8), currentTime};
-
-        appendBeaconToBuffer(payload + (len - 20), 20, metadata, sizeof(metadata));
-        
-        /**********
-        // enable to print information on the recorded beacon to serial monitor
-        std::stringstream stream;
-        stream << std::hex << std::setfill('0');
-        for (size_t i = len - 20; i < len; i++) {
-          stream << std::hex << std::setw(2) << (unsigned int) payload[i];
-        }
-        std::string beacon = stream.str();
-        cout << "Logged beacon: " << beacon.c_str() << ";" << currentTime << ";" << +os << endl;
-        **********/
+      // encoding: 01(64) = Android, 10(128) = iOS, 11(192) = header as expected, but payload length differs, 00(0) = unexpected format
+      uint8_t formatInfo = 0;
+      if ((unsigned int) payload[0] == 3) { // Android (lacks flag section)
+        formatInfo = (len == 28) ? 64 : 192;
+      } else if ((unsigned int) payload[0] == 2 && len == 31) { // iOS
+        formatInfo = (len == 31) ? 128 : 192;
       }
+
+      // 22 bits can represent 48 days as seconds, use 2 most significant bits of 3-byte metadata to encode information about BLE frame format
+      uint8_t metadata[] = {(currentTime >> 16) + formatInfo, (currentTime >> 8), currentTime};
+
+      appendBeaconToBuffer(payload + (len - 20), 20, metadata, sizeof(metadata));
+      
+      /**********
+      // enable to print information on the recorded beacon to serial monitor
+      std::stringstream stream;
+      stream << std::hex << std::setfill('0');
+      for (size_t i = len - 20; i < len; i++) {
+        stream << std::hex << std::setw(2) << (unsigned int) payload[i];
+      }
+      std::string beacon = stream.str();
+      cout << "Logged beacon: " << beacon.c_str() << ";" << currentTime << ";" << +os << endl;
+      **********/
     }
+  }
 };
 
 void setup() {
@@ -79,7 +79,7 @@ void setup() {
   // needs to be set to true when first running this code on the sensor
   if (!SPIFFS.begin(false)) {
     Serial.println("Error while initializing SPIFFS!");
-    while (true){}
+    while (true) {}
   }
 
   if (!SPIFFS.exists(beaconFile)) {
@@ -105,13 +105,13 @@ void loop() {
  
   if (Serial.available()) {
     String input = Serial.readStringUntil('\n');
-    if(input.equals("read")) {
-        Serial.println("Output format: beacon;timestamp");
+    if (input.equals("read")) {
+        Serial.println("Output format: beacon;timestamp;OS/frame format");
         readFile(SPIFFS, beaconFile);
         Serial.println("All frames displayed.");
     }    
     else if (input.equals("log")){
-      if (scan){
+      if (scan) {
         Serial.println("No longer logging!");
         scan = false;
       }
@@ -125,10 +125,10 @@ void loop() {
 }
 
 void appendBeaconToBuffer(uint8_t* beacon, size_t beaconLen, uint8_t* metadata, size_t metadataLen) {
-  for(size_t i = 0; i < beaconLen; i++) {
+  for (size_t i = 0; i < beaconLen; i++) {
     beaconBuf.push_back(beacon[i]);
   }
-  for(size_t j = 0; j < metadataLen; j++) {
+  for (size_t j = 0; j < metadataLen; j++) {
     beaconBuf.push_back(metadata[j]);
   }
 }
@@ -138,7 +138,7 @@ void writeBeaconsToFile() {
   if (SPIFFS.totalBytes() - SPIFFS.usedBytes() > beaconBuf.size()) {
     File file = SPIFFS.open(beaconFile, FILE_APPEND);
     if (file) {
-      for(vector<uint8_t>::iterator it = beaconBuf.begin(); it != beaconBuf.end(); it++) {
+      for (vector<uint8_t>::iterator it = beaconBuf.begin(); it != beaconBuf.end(); it++) {
         file.write(*it);
       }
     }
@@ -150,41 +150,40 @@ void writeBeaconsToFile() {
   }
 }
 
-void createFile(fs::FS &fs, const char * path){
+void createFile(fs::FS &fs, const char * path) {
   File file = SPIFFS.open(path, FILE_WRITE);
   file.close();
   Serial.println("BLE frames log file has been generated.");
 }
 
-void readFile(fs::FS &fs, const char * path){
-  Serial.println("Reading logged frames:");
-      File file = SPIFFS.open(path, FILE_READ);
-        while(file.available()){
-          uint8_t beacon[20];
-          uint8_t metadata[3];
-          file.read(beacon, sizeof(beacon));
-          file.read(metadata, sizeof(metadata));
-          
-          std::stringstream stream;
-          stream << std::hex << std::setfill('0');
-          for (size_t i = 0; i < sizeof(beacon); i++) {
-            stream << std::hex << std::setw(2) << (unsigned int) beacon[i];
-          }
-          
-          std::string formatInfo = "unexpected";
-          if (metadata[0] >= 192) {
-            metadata[0] -= 192;
-            formatInfo = "length mismatch";
-          } else if (metadata[0] >= 128) {
-            metadata[0] -= 128;
-            formatInfo = "iOS";
-          } else if (metadata[0] >= 64) {
-            metadata[0] -= 64;
-            formatInfo = "Android";
-          }
-          
-          uint32_t currentTime = (uint32_t) metadata[0] << 16 | (uint16_t) metadata[1] << 8 | metadata[2];
-          cout << stream.str() << ";" << currentTime << ";" << formatInfo << endl;
-        }
-        file.close();
- }
+void readFile(fs::FS &fs, const char * path) {
+  File file = SPIFFS.open(path, FILE_READ);
+  while (file.available()) {
+    uint8_t beacon[20];
+    uint8_t metadata[3];
+    file.read(beacon, sizeof(beacon));
+    file.read(metadata, sizeof(metadata));
+    
+    std::stringstream stream;
+    stream << std::hex << std::setfill('0');
+    for (size_t i = 0; i < sizeof(beacon); i++) {
+      stream << std::hex << std::setw(2) << (unsigned int) beacon[i];
+    }
+    
+    std::string formatInfo = "unexpected";
+    if (metadata[0] >= 192) {
+      metadata[0] -= 192;
+      formatInfo = "length mismatch";
+    } else if (metadata[0] >= 128) {
+      metadata[0] -= 128;
+      formatInfo = "iOS";
+    } else if (metadata[0] >= 64) {
+      metadata[0] -= 64;
+      formatInfo = "Android";
+    }
+    
+    uint32_t currentTime = (uint32_t) metadata[0] << 16 | (uint16_t) metadata[1] << 8 | metadata[2];
+    cout << stream.str() << ";" << currentTime << ";" << formatInfo << endl;
+  }
+  file.close();
+}
