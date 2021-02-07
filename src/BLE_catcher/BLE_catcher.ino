@@ -33,21 +33,17 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
         // metadata
         uint64_t currentTime = esp_timer_get_time() / 1000000;
-        
-        int os = 0;
-        //TODO store os beacon file
-        if ((unsigned int)payload[0] == 3){
-          //Flag section missing means Android NE API 
-          //Android
-          os = 1;
-        }
-        else {
-          //ios
-          os = 2;
+
+        // encoding: 01(64) = Android, 10(128) = iOS, 11(192) = header as expected, but payload length differs, 00(0) = unexpected format
+        uint8_t os = 0;
+        if ((unsigned int) payload[0] == 3) { // Android (lacks flag section)
+          os = (len == 28) ? 64 : 192;
+        } else if ((unsigned int) payload[0] == 2 && len == 31) { //iOS
+          os = (len == 31) ? 128 : 192;
         }
 
-        // 3 bytes can represent 194 days as seconds
-        uint8_t metadata[] = {(currentTime >> 16), (currentTime >> 8), currentTime};
+        // 22 bits can represent 48 days as seconds, use 2 most significant bits of 3-byte metadata to encode information about BLE frame format
+        uint8_t metadata[] = {(currentTime >> 16) + os, (currentTime >> 8), currentTime};
 
         appendBeaconToBuffer(payload + (len - 20), 20, metadata, sizeof(metadata));
         
@@ -59,7 +55,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
           stream << std::hex << std::setw(2) << (unsigned int) payload[i];
         }
         std::string beacon = stream.str();
-        cout << "Logged beacon: " << beacon.c_str() << endl;
+        cout << "Logged beacon: " << beacon.c_str() << ";" << currentTime << ";" << +os << endl;
         **********/
       }
     }
@@ -165,17 +161,30 @@ void readFile(fs::FS &fs, const char * path){
       File file = SPIFFS.open(path, FILE_READ);
         while(file.available()){
           uint8_t beacon[20];
-          uint8_t timeArray[3];
+          uint8_t metadata[3];
           file.read(beacon, sizeof(beacon));
-          file.read(timeArray, sizeof(timeArray));
+          file.read(metadata, sizeof(metadata));
           
           std::stringstream stream;
           stream << std::hex << std::setfill('0');
           for (size_t i = 0; i < sizeof(beacon); i++) {
             stream << std::hex << std::setw(2) << (unsigned int) beacon[i];
           }
-          uint32_t currentTime = (uint32_t) timeArray[0] << 16 | (uint16_t) timeArray[1] << 8 | timeArray[2];
-          cout << stream.str() << ";" << currentTime << endl;
+          
+          std::string formatInfo = "unexpected";
+          if (metadata[0] >= 192) {
+            metadata[0] -= 192;
+            formatInfo = "length mismatch";
+          } else if (metadata[0] >= 128) {
+            metadata[0] -= 128;
+            formatInfo = "iOS";
+          } else if (metadata[0] >= 64) {
+            metadata[0] -= 64;
+            formatInfo = "Android";
+          }
+          
+          uint32_t currentTime = (uint32_t) metadata[0] << 16 | (uint16_t) metadata[1] << 8 | metadata[2];
+          cout << stream.str() << ";" << currentTime << ";" << formatInfo << endl;
         }
         file.close();
  }
