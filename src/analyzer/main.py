@@ -21,18 +21,30 @@ def analyse_part(teks,ids):
         for rpi in tek[6]:
             for id_element in ids:            
                 if rpi in id_element:
-                    # result is a list containing one list for tek - and one for rpi associated data
+                    # Decrypt AEM
+                    v_major,v_minor, pl = key_scheduler.decrypt_associated_metadata(tek[0], rpi, id_element[rpi][3])
+                    aem = str(v_major) + "." + str(v_minor) + ";" + str(pl)
+
+                    # Result is a list containing one list for tek - and one for rpi associated data
                     result = []
-                    # convert byte objects to hex strings, cause database cant store bytes
+                    # Convert byte objects to hex strings, cause database cant store bytes
                     tek_list = tek[1:6]
                     tek_list.insert(0,tek[0].hex())
                     result.append(tek_list)
                     rpi_list = id_element.get(rpi)     
-                    #  key, time count, id set, aem,duplicate_counter           
-                    result.append([rpi_list[0].hex(),rpi_list[1],rpi_list[2],rpi_list[3].hex(), rpi_list[4]])
-                    # add result to global dictionary 
+                    # Key, time count, id set, decrypted aem,duplicate_counter           
+                    result.append([rpi_list[0].hex(), rpi_list[1], rpi_list[2], aem, rpi_list[4]])
+                    # Add result to global dictionary 
                     matched_tek_objects[rpi.hex()] = result
-                    print("Found positive catched id! Rpi is: " + str(rpi) + ". Found in list of teks from date: " + teks["date"] + ". Tek key data is: " + str(tek[0]) + ". Id element content is: " + str(id_element[rpi]))
+
+                    # Print result of id
+                    print("Found positive catched id!")
+                    print("TEK: " + str(tek[0]))
+                    print("RPI: " + str(rpi))
+                    print("TEK date: " + teks["date"])
+                    print("ID file: " + str(id_element[rpi][2]))
+                    print("AEM: " + aem)
+                    print()
 
     #tmp = 0
     #tmp_s = ""
@@ -86,13 +98,16 @@ if __name__ == "__main__":
         count_ids += len(id_element)
 
     print("Analysing " + str(count_teks) + " downloaded teks and " + str(count_ids) + " catched ids...")
+    print()
 
     for teks in teks_list:
         analyse_part(teks,ids)
     
-    print("Results:")
-    print(matched_tek_objects)
+    print("Storing results into database...")
     db.insert(matched_tek_objects)
+    print("Done")
+    print()
+
     
     #for item in db:
     #    print(item)
