@@ -82,8 +82,12 @@ def parse_ids():
                 c_tmp = c.replace("\n", "").split(";")
                 if c_tmp == ['']:
                     continue
-
-                key_tmp = bytes.fromhex(c_tmp[0])
+		
+                try:
+                    key_tmp = bytes.fromhex(c_tmp[0])
+                except:
+                    print("Error reading contents of id file: " + f + ". Check the contents of the file!") 
+                    exit(1)
                 key_val = key_tmp[:16]
                 #duplicate detected
                 if key_val in res:
