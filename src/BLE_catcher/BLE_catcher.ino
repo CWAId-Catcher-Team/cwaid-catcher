@@ -38,7 +38,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
       uint8_t formatInfo = 0;
       if ((unsigned int) payload[0] == 3) { // Android (lacks flag section)
         formatInfo = (len == 28) ? 64 : 192;
-      } else if ((unsigned int) payload[0] == 2 && len == 31) { // iOS
+      } else if ((unsigned int) payload[0] == 2) { // iOS
         formatInfo = (len == 31) ? 128 : 192;
       }
 
