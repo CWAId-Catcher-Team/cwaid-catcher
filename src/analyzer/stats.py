@@ -74,7 +74,13 @@ def stats_parser():
 
 
 def print_stats(all_stats):
-    for date, stat_dict in all_stats.items():
+    dates = []
+    for date in all_stats.keys():
+        dates.append(date)
+    dates.sort()
+
+    for date in dates:
+        stat_dict = all_stats[date]
         print("[" + date + "] New CWA warnings: " + str(stat_dict["new_cwa_warnings"]))
         print("[" + date + "] New CWA warnings 7-day average: " + str(stat_dict["new_cwa_warnings_7_day_average"]))
         print("[" + date + "] Total CWA warnings: " + str(stat_dict["total_cwa_warnings"]))
