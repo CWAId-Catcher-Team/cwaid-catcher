@@ -130,6 +130,7 @@ void loop() {
       }
        
     } else if (input.equals("format")) {
+      Serial.println("Formatting... This may take a moment, stay calm :)");
       Serial.printf("Formatting successful == %s\n", SPIFFS.format() ? "true" : "false");
     } else if (input.equals("usedMemory") || input.equals("used")) {
       Serial.printf("%d bytes are populated, this is %.1f%% of the sensor's non-volatile memory.\n", SPIFFS.usedBytes(), SPIFFS.usedBytes() * 100.0f / SPIFFS.totalBytes());
