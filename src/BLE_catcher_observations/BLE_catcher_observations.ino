@@ -1,8 +1,3 @@
-/*
-   Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleScan.cpp
-   Ported to Arduino ESP32 by Evandro Copercini
-*/
-
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEScan.h>
@@ -39,9 +34,18 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
         // metadata
         int rssi = advertisedDevice.getRSSI();
         uint64_t currentTime = esp_timer_get_time() / 1000000;
-        // 3 bytes can represent 194 days as seconds
+
+        // encoding: 01(64) = Android, 10(128) = iOS, 11(192) = header as expected, but payload length differs, 00(0) = unexpected format
+        uint8_t formatInfo = 0;
+        if ((unsigned int) payload[0] == 3) { // Android (lacks flag section)
+          formatInfo = (len == 28) ? 64 : 192;
+        } else if ((unsigned int) payload[0] == 2) { // iOS
+          formatInfo = (len == 31) ? 128 : 192;
+        }
+      
+        // 22 bits can represent 48 days as seconds, use 2 most significant bits of 3-byte metadata to encode information about BLE frame format
         // least significant byte of rssi can represent [-128,127], transform to (unsigned) byte to store
-        uint8_t metadata[] = {(currentTime >> 16), (currentTime >> 8), currentTime, (uint8_t) rssi};
+        uint8_t metadata[] = {(currentTime >> 16) + formatInfo, (currentTime >> 8), currentTime, (uint8_t) rssi};
 
         /**********
         // print beacon and metadata to serial monitor
@@ -166,9 +170,22 @@ void readFile(fs::FS &fs, const char * path){
           for (size_t i = 0; i < sizeof(beacon); i++) {
             stream << std::hex << std::setw(2) << (unsigned int) beacon[i];
           }
+
+          std::string formatInfo = "unexpected";
+          if (metadata[0] >= 192) {
+            metadata[0] -= 192;
+            formatInfo = "length mismatch";
+          } else if (metadata[0] >= 128) {
+            metadata[0] -= 128;
+            formatInfo = "iOS";
+          } else if (metadata[0] >= 64) {
+            metadata[0] -= 64;
+            formatInfo = "Android";
+          }
+    
           uint32_t currentTime = (uint32_t) metadata[0] << 16 | (uint16_t) metadata[1] << 8 | metadata[2];
           // use + to promote int8_t to a type printable as a number, transform rssi byte back to signed 8-bit integer
-          cout << stream.str() << ";" << currentTime << ";" << +int8_t(metadata[3]) << endl;
+          cout << stream.str() << ";" << currentTime << ";" << +int8_t(metadata[3]) << ";" << formatInfo << endl;
         }
         file.close();
  }
