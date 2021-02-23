@@ -11,8 +11,8 @@
 
 using namespace std;
 
-const int scanTime = 5; // scan for 'scanTime' seconds 
-const uint64_t sleepTime = 2; // pausing scan for 'sleepTime' seconds
+const int scanTime = 9; // scan for 'scanTime' seconds 
+const uint64_t sleepTime = 1; // pausing scan for 'sleepTime' seconds
 BLEScan* pBLEScan;
 bool scan = true;
 const char * beaconFile = "/beacons.txt";
@@ -24,44 +24,49 @@ void appendBeaconToBuffer(uint8_t* beacon, size_t beaconLen, uint8_t* metadata, 
 
 
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
-    void onResult(BLEAdvertisedDevice advertisedDevice) {
-      if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(BLEUUID((uint16_t) 0xfd6f))){
+  void onResult(BLEAdvertisedDevice advertisedDevice) {
+    if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(BLEUUID((uint16_t) 0xfd6f))){
 
-        // payload of BLE frame
-        uint8_t* payload = advertisedDevice.getPayload();
-        size_t len = advertisedDevice.getPayloadLength();
-        
-        // metadata
-        int rssi = advertisedDevice.getRSSI();
-        uint64_t currentTime = esp_timer_get_time() / 1000000;
-
-        // encoding: 01(64) = Android, 10(128) = iOS, 11(192) = header as expected, but payload length differs, 00(0) = unexpected format
-        uint8_t formatInfo = 0;
-        if ((unsigned int) payload[0] == 3) { // Android (lacks flag section)
-          formatInfo = (len == 28) ? 64 : 192;
-        } else if ((unsigned int) payload[0] == 2) { // iOS
-          formatInfo = (len == 31) ? 128 : 192;
-        }
+      // payload of BLE frame
+      uint8_t* payload = advertisedDevice.getPayload();
+      size_t len = advertisedDevice.getPayloadLength();
       
-        // 22 bits can represent 48 days as seconds, use 2 most significant bits of 3-byte metadata to encode information about BLE frame format
-        // least significant byte of rssi can represent [-128,127], transform to (unsigned) byte to store
-        uint8_t metadata[] = {(currentTime >> 16) + formatInfo, (currentTime >> 8), currentTime, (uint8_t) rssi};
+      // metadata
+      int rssi = advertisedDevice.getRSSI();
+      uint64_t currentTime = esp_timer_get_time() / 1000000;
 
-        /**********
-        // print beacon and metadata to serial monitor
-        std::stringstream stream;
-        stream << std::hex << std::setfill('0');
-        for (size_t i = len - 20; i < len; i++) {
-          stream << std::hex << std::setw(2) << (unsigned int) payload[i];
-        }
-        std::string beacon = stream.str();
-        cout << "Logged beacon: " << beacon.c_str() << ";" << currentTime << ";" << rssi << endl;
-        ***********/
-        
-        appendBeaconToBuffer(payload + (len - 20), 20, metadata, sizeof(metadata));
+      // encoding: 01(64) = Android, 10(128) = iOS, 11(192) = header as expected, but payload length differs, 00(0) = unexpected format
+      uint8_t formatInfo = 0;
+      if ((unsigned int) payload[0] == 3) { // Android (lacks flag section)
+        formatInfo = (len == 28) ? 64 : 192;
+      } else if ((unsigned int) payload[0] == 2) { // iOS
+        formatInfo = (len == 31) ? 128 : 192;
       }
-      
+    
+      // 22 bits can represent 48 days as seconds, use 2 most significant bits of 3-byte metadata to encode information about BLE frame format
+      // least significant byte of rssi can represent [-128,127], transform to (unsigned) byte to store
+      uint8_t metadata[] = {(currentTime >> 16) + formatInfo, (currentTime >> 8), currentTime, (uint8_t) rssi};
+
+      /**********
+      // print beacon and metadata to serial monitor
+      std::stringstream stream;
+      stream << std::hex << std::setfill('0');
+      for (size_t i = len - 20; i < len; i++) {
+        stream << std::hex << std::setw(2) << (unsigned int) payload[i];
+      }
+      std::string beacon = stream.str();
+      cout << "Logged beacon: " << beacon.c_str() << ";" << currentTime << ";" << rssi << endl;
+      ***********/
+
+      if (len >= 20) {
+        appendBeaconToBuffer(payload + (len - 20), 20, metadata, sizeof(metadata));
+      } else {
+        uint8_t defaultBeacon[20] = { 0 };
+        defaultBeacon[0] = (uint8_t) len;
+        appendBeaconToBuffer(defaultBeacon, 20, metadata, sizeof(metadata));
+      }
     }
+  }
 };
 
 void setup() {

@@ -45,7 +45,13 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
       // 22 bits can represent 48 days as seconds, use 2 most significant bits of 3-byte metadata to encode information about BLE frame format
       uint8_t metadata[] = {(currentTime >> 16) + formatInfo, (currentTime >> 8), currentTime};
 
-      appendBeaconToBuffer(payload + (len - 20), 20, metadata, sizeof(metadata));
+      if (len >= 20) {
+        appendBeaconToBuffer(payload + (len - 20), 20, metadata, sizeof(metadata));
+      } else {
+        uint8_t defaultBeacon[20] = { 0 };
+        defaultBeacon[0] = (uint8_t) len;
+        appendBeaconToBuffer(defaultBeacon, 20, metadata, sizeof(metadata));
+      }
       
       /**********
       // enable to print information on the recorded beacon to serial monitor
