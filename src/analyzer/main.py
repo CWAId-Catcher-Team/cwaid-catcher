@@ -4,12 +4,16 @@
 #   tinydb: python -m pip install tinydb
 import os
 import pickle
+import time
+
+import tek_parser
+
 from utils.config import ApplicationConfig as config
 from utils.keys import KeyScheduler as ks
 import utils.parser as parser
+
 from tinydb import TinyDB
 from datetime import datetime
-import tek_parser
 
 def analyse_part(teks,ids):
     key_scheduler = ks()
@@ -67,46 +71,52 @@ def analyse_part(teks,ids):
 
     
 if __name__ == "__main__":    
-        # Parse all catched ids
-    ids = parser.parse_ids()
+    start = time.time()
+    count_teks = 0
+    count_ids = 0
+    
+    # Initializing tek_parser to parse all teks not parsed yet 
+    tek_parser.parse_tek()
 
-    # Here all found rips will be stored
+    # Parse all catched ids
+    ids = parser.parse_ids()
+    
+    for id_element in ids:
+        count_ids += len(id_element)
+    
+    print("Analysing " + str(count_ids) + " catched ids...")
+    print()
+
+    # Here all found rpis will be stored
     matched_tek_objects = dict() 
-    # Get teks as list of directories where each element is a directory of the tek list of one day 
-    print("Parsing teks...")
-    teks_list = []
+
+    # Analyse teks of each day for a positive rpi 
     for subdir, dirnames, filenames in os.walk(config.TEK_PARSED_DIRECTORY):
         for f in os.listdir(subdir):
             if f == "teks":
                 continue
             with open(os.path.join(subdir, f), "rb") as f_tek:
-                teks_list.append(pickle.load(f_tek))
+                teks = pickle.load(f_tek)
+            count_teks += len(teks) - 1
+            analyse_part(teks, ids)
     print("Done.")
 
-    s = datetime.now().strftime('%m_%d_%Y_%H%M%S')
-    db = TinyDB('./database/db_{}.json'.format(s))
-
-    count_teks = 0
-    for teks in teks_list:
-        count_teks += len(teks) - 1
     if not count_teks:
         print('No Teks in {}, trying to create tek lookup data now...'.format(config.TEK_PARSED_DIRECTORY))
-        tek_parser.parse_tek()
+        print('Done. Please restart.')
+        exit(0)
 
-    count_ids = 0
-    for id_element in ids:
-        count_ids += len(id_element)
-
-    print("Analysing " + str(count_teks) + " downloaded teks and " + str(count_ids) + " catched ids...")
-    print()
-
-    for teks in teks_list:
-        analyse_part(teks,ids)
-    
     print("Storing results into database...")
+
+    s = datetime.now().strftime('%m_%d_%Y_%H%M%S')
+    db = TinyDB('./database/db_{}.json'.format(s)) 
     db.insert(matched_tek_objects)
-    print("Done")
+
+    print("Done.")
     print()
+   
+    duration = int(time.time() - start)
+    print("Needed " + str(duration) + " seconds.")
 
     
     #for item in db:
