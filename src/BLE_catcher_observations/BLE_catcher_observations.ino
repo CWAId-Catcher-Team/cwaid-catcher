@@ -11,8 +11,8 @@
 
 using namespace std;
 
-const int scanTime = 9; // scan for 'scanTime' seconds 
-const uint64_t sleepTime = 1; // pausing scan for 'sleepTime' seconds
+const int scanTime = 5; // scan for 'scanTime' seconds 
+const uint64_t sleepTime = 0; // pausing scan for 'sleepTime' seconds
 BLEScan* pBLEScan;
 bool scan = true;
 const char * beaconFile = "/beacons.txt";
