@@ -57,8 +57,9 @@ def parse_tek(t_count):
 
 
 # parses all catched ids and returns a list of dicts, where each dict corresponds to one id file of an esp and where each dict contains date and time as a key with its corresponding value when catching was started and for the rest the keys are the first 16 bytes of the id and contain id + seconds since start as a list
-def parse_ids():
-    print("Parsing all ids...")
+def parse_ids(output=True):
+    if output:
+        print("Parsing all ids...")
 
     content = [] 
 
@@ -109,7 +110,7 @@ def parse_ids():
             res["time"] = time
 
             content.append(res)
-                
-    print("Done.")
+    if output:         
+        print("Done.")
 
     return content

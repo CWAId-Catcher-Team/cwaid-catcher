@@ -95,5 +95,6 @@ def parse_tek():
 
     print("Done.")
 
+
 if __name__ == '__main__':
     parse_tek()

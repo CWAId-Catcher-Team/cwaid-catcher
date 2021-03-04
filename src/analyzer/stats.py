@@ -92,6 +92,7 @@ def print_stats(all_stats):
         print()
 
 
-all_stats = stats_parser()
-print_stats(all_stats)
-print("Note: All values are exactly of the displayed day. E.g. for the day 2021-02-08 the new CWA warnings are the amount of warnings the CWA received on exactly that whole day.") 
+if __name__ == "__main__":    
+    all_stats = stats_parser()
+    print_stats(all_stats)
+    print("Note: All values are exactly of the displayed day. E.g. for the day 2021-02-08 the new CWA warnings are the amount of warnings the CWA received on exactly that whole day.") 
