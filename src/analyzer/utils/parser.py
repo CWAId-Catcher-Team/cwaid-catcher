@@ -83,6 +83,12 @@ def parse_ids(output=True):
                 c_tmp = c.replace("\n", "").split(";")
                 if c_tmp == ['']:
                     continue
+
+                if c_tmp[0][:17] == "02000000010000000":
+                    continue
+                if c_tmp[0][2:] == "00000000000000000000000000000000000000":
+                    continue
+                    
 		
                 try:
                     key_tmp = bytes.fromhex(c_tmp[0])
