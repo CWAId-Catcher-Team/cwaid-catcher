@@ -103,13 +103,28 @@ if __name__ == "__main__":
     
     start = time.time()
     count_teks = 0
-    count_ids = 0
     
     # Parse all catched ids
     ids = parser.parse_ids(False)
-    
+  
+    unique_ids = set()
+    android_count = 0
+    ios_count = 0
+    other_count = 0
+    # Iterate over ids of each file 
     for id_element in ids:
-        count_ids += len(id_element)
+        # Check what os each id file has
+        for k, id_info in id_element.items():
+            unique_ids.add(k)
+
+            id_os = id_info[4]
+            if id_os == 1:
+                ios_count += 1
+            elif id_os == 2:
+                android_count += 1
+            elif id_os == 3:
+                other_count += 1
+
 
     # Here all found rpis will be stored
     matched_tek_objects = dict() 
@@ -151,11 +166,11 @@ if __name__ == "__main__":
     print(div)
     print("Amount of unique catched RPI's")
     print(div)
-    print(str(count_ids))
+    print(str(len(unique_ids)))
     print(div)
     print("\n")
 
-    # Amount of teks each day 
+    # TODO Amount of teks each day 
     print(div)
     print("Amount of teks uploaded to CWA server: YYYY-MM-DD;#Teks")
     print(div)
@@ -178,5 +193,18 @@ if __name__ == "__main__":
         print(output)
     print(div)
     print("\n")
-
-    
+ 
+    # OS of ids 
+    print(div)
+    print("OS detection:")
+    print(div)
+    all_count = ios_count + android_count + other_count
+    print("# All: " + str(all_count) +  "\n")
+    print("# iOS: " + str(ios_count))
+    print("% iOS: " + str((100 * ios_count) / all_count) + "\n")
+    print("# Android: " + str(android_count))
+    print("% Android: " + str((100 * android_count) / all_count) + "\n")
+    print("# Other: " + str(other_count))
+    print("% Other: " + str((100 * other_count) / all_count))
+    print(div)
+    print("\n")
