@@ -16,8 +16,9 @@ import utils.parser as parser
 from tinydb import TinyDB
 from datetime import datetime
 import plotext as plt
+import termplotlib as tpl
 
-def analyse_part(ids):
+def analyse_ids(ids):
     key_scheduler = ks()
 
     # RSSI to distance
@@ -45,14 +46,14 @@ def analyse_part(ids):
             rpi = id_element.get(rpi_key) 
             if print_set_identifier:
                 print('Set {} ({:d} entries)'.format(rpi[2], len(id_element)))
+                print('-' * 60)
                 print_set_identifier = 0
+       
+            if rpi[4] == 1:
+                ios_count+= 1 
+            elif rpi[4] == 2:
+                android_count+= 1        
 
-            if isinstance(rpi[4],str):
-                if rpi[4].lower() == 'android':
-                    android_count+= 1
-                elif rpi[4].lower() == 'ios':
-                    ios_count+= 1 
-            
             #timediff
             timestamps_rssis = rpi[1]
             start_time = timestamps_rssis[0][0]
@@ -61,6 +62,7 @@ def analyse_part(ids):
             if (len(timestamps_rssis) > 2):
                 rpi_livetime = datetime.fromtimestamp(end_time) - datetime.fromtimestamp(start_time)
                 rpi_livetime = rpi_livetime.total_seconds()
+           
                 rpi_livetimes.append(int(rpi_livetime))
                 #s = '{:02}m:{:02}s:{:02}ms'.format(int(rpi_livetime / 60), int(rpi_livetime % 60), int(rpi_livetime % 1 * 1000))
                 #print('RPI was catched for ' + s)
@@ -74,8 +76,9 @@ def analyse_part(ids):
                         ts = int(td.total_seconds())
                         x.append(ts)
                         # 10 ^ ((Measured Power — RSSI)/(10 * N))
-                        y.append(pow(10,((measured_power - int(time_and_rssi[1])) / (10 * n))))   
-                        movement_plots.append([x,y])
+                        y.append(round(pow(10,((measured_power - int(time_and_rssi[1])) / (10 * n))),2))  
+
+                    movement_plots.append([x,y])    
                     #plt.clp()
                     #plt.plot(y)
                     #plt.clt()
@@ -88,17 +91,42 @@ def analyse_part(ids):
             average_live_time = 0
             max_live_time = 0
             min_live_time = 20
+            exceeded_lifetime = []
             for live_time in rpi_livetimes:
                 if live_time > max_live_time:
                     max_live_time = live_time
                 if live_time < min_live_time:
                     min_live_time = live_time
-
+                if live_time >= 16*60:
+                    exceeded_lifetime.append(live_time)
                 global_live_time += live_time
-            average_live_time = global_live_time / len(rpi_livetimes)
+            average_live_time = global_live_time / len(rpi_livetimes)            
             print('RPI average tracking duration was {:02}m:{:02}s:{:02}ms'.format(int(average_live_time / 60), int(average_live_time % 60), int(average_live_time % 1 * 1000)))
             print('Longest tracked RPI {:02}m:{:02}s:{:02}ms, shortest tracked RPI {:02}m:{:02}s:{:02}ms'.format(int(max_live_time / 60), int(max_live_time % 60), int(max_live_time % 1 * 1000),int(min_live_time / 60), int(min_live_time % 60), int(min_live_time % 1 * 1000)))
+           
+            #if movement_plots:               
+                #for count in range(0,1):
+                    #plot = movement_plots[count]
+                    #plt.title = 'Movement pattern of tracked RPI'
+                    #plt.xlabel = 'Time in s'
+                    #plt.ylabel = "Dinstance to sensor in m"
+                    #plt.grid(True)
+                    #plt.clear_plot()
+                    #plt.frame()
+                    
+                    #plt.plot(x,y)
+                    #plt.show();
+                    #plt.sleep(5);
+
         # Livetime länger als 15min
+        if exceeded_lifetime:
+            print('{} ids exceeded their expected lifetime of about 16 min, the maximum was {:02} min'.format(len(exceeded_lifetime), int(sorted(exceeded_lifetime)[-1] / 60)))
+
+        if android_count and ios_count:
+            print('\nNumber of tracked Android and iOS devices')
+            fig = tpl.figure()
+            fig.barh([android_count, ios_count], ["Android","iOS"])
+            fig.show()
         # Maximale Aufenthaltsdauer per RPI
         # Anteil an IOS und Anroid Devices 
         # RPIs die am dichtesten für die längste Zeit aufgenommen wurden
@@ -108,7 +136,7 @@ def analyse_part(ids):
         # n RPI am häufigsten gescannt (Abhängig von Scantime & Sleep)
         # Korrelation zwischen RPIs per Counter (e.g RPI#1 Count=10 RPI#2 Count=10 keine zeitliche Überschneidung -> Annahme könnte von gleicher TEK sein)
 
-           
+        print('\n')   
             # Key, time count, id set, decrypted aem,duplicate_counter           
             #result.append([rpi_list[0].hex(), rpi_list[1], rpi_list[2], aem, rpi_list[4]])
      
@@ -125,7 +153,7 @@ if __name__ == "__main__":
     print("Analysing " + str(count_ids) + " catched ids...")
     print()
 
-    analyse_part(ids)
+    analyse_ids(ids)
 
     print("Storing results into database...")
 

@@ -96,12 +96,21 @@ def parse_ids(output=True):
                     print("Error reading contents of id file: " + f + ". Check the contents of the file!") 
                     exit(1)
                 key_val = key_tmp[:16]
+                
+                rssi = []
+                var_infos = []
+                for var_info in c_tmp[2:]:
+                    if isinstance(var_info, str) and var_info.startswith('-'):
+                        rssi = [var_info]
+
                 #duplicate detected
                 if key_val in res:
-                    # Trim counter at index 4, if counter is always last use -1 instead
-                    basic_infos = res.get(key_val)[:5]
+                    # Trim counter at index, if counter is always last use -1 instead
+                    basic_infos = res.get(key_val)[:-1]
+                    timedelta = base_date_time + d.timedelta(seconds=int(c_tmp[1]))
+                    basic_infos[1] = basic_infos[1] + [[timedelta.timestamp()] + rssi]
                     # Increment counter var
-                    counter = res.get(key_val)[5] + 1
+                    counter = res.get(key_val)[-1] + 1
                     # write back to dict
                     res[key_val] = basic_infos + [counter]
                 else:
@@ -115,7 +124,9 @@ def parse_ids(output=True):
                         id_os = 2
                     elif c_tmp[-1] == "length mismatch" or c_tmp[-1] == "unexpected":
                         id_os = 3 
-                    res[key_val] = [key_val,timedelta.timestamp(), f, key_tmp[16:], id_os, 1]
+
+                    var_info = [timedelta.timestamp()] + rssi      
+                    res[key_val] = [key_val,[var_info], f, key_tmp[16:], id_os, 1]
 
             
             # TODO: parse to unix time value that can be parsed by python internals instead of carrying two variables
