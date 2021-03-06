@@ -49,27 +49,7 @@ def analyse_part(teks,ids):
                     print("ID file: " + str(id_element[rpi][2]))
                     print("AEM: " + aem)
                     print()
-
-    #tmp = 0
-    #tmp_s = ""
-    #for i in teks_list[0].keys():
-    #    tmp += 1
-    #    if tmp == 1:
-    #        tmp_s = i
-    #        break
-    # TODO:   
-    #print("First element of tek_list key_data: " + str(tmp_s) + " element: " + str(teks_list[0][tmp_s]))
-    #tmp = 0
-    #tmp_s = ""
-    #for i in ids[0].keys():
-    #    tmp += 1
-    #    if tmp == 1:
-    #        tmp_s = i
-    #        break
-    #print("Date of first list: " + str(ids[0]["date"]) + ". Time of first list: " + str(ids[0]["time"]) + " first element of first ids list: " + str(ids[0][tmp_s]))
-
-
-    
+   
 if __name__ == "__main__":    
     start = time.time()
     count_teks = 0
