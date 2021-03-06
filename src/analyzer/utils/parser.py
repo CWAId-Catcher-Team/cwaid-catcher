@@ -83,6 +83,12 @@ def parse_ids(output=True):
                 c_tmp = c.replace("\n", "").split(";")
                 if c_tmp == ['']:
                     continue
+
+                if c_tmp[0][:17] == "02000000010000000":
+                    continue
+                if c_tmp[0][2:] == "00000000000000000000000000000000000000":
+                    continue
+                    
 		
                 try:
                     key_tmp = bytes.fromhex(c_tmp[0])
@@ -93,16 +99,23 @@ def parse_ids(output=True):
                 #duplicate detected
                 if key_val in res:
                     # Trim counter at index 4, if counter is always last use -1 instead
-                    basic_infos = res.get(key_val)[:4]
+                    basic_infos = res.get(key_val)[:5]
                     # Increment counter var
-                    counter = res.get(key_val)[4] + 1
+                    counter = res.get(key_val)[5] + 1
                     # write back to dict
                     res[key_val] = basic_infos + [counter]
                 else:
                     # compute absolute time by adding the stored offset for each id to the base_date_time
                     timedelta = base_date_time + d.timedelta(seconds=int(c_tmp[1]))
-                     #                key, time count as float timestamp, id set, aem, duplicate_counter
-                    res[key_val] = [key_val,timedelta.timestamp(), f, key_tmp[16:], 1]
+                    # key, time count as float timestamp, id set, aem, unknown/iOS/Android/other, duplicate_counter
+                    id_os = 0
+                    if c_tmp[-1] == "iOS":
+                        id_os = 1
+                    elif c_tmp[-1] == "Android":
+                        id_os = 2
+                    elif c_tmp[-1] == "length mismatch" or c_tmp[-1] == "unexpected":
+                        id_os = 3 
+                    res[key_val] = [key_val,timedelta.timestamp(), f, key_tmp[16:], id_os, 1]
 
             
             # TODO: parse to unix time value that can be parsed by python internals instead of carrying two variables
