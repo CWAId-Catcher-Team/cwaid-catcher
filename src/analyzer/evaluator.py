@@ -167,10 +167,27 @@ if __name__ == "__main__":
     print(str(len(unique_ids)))
     print(div)
     print("\n")
+    
+    # Statistics of CWA server
+    print(div)
+    print("Statistics: YYYY-MM-DD;#NewInfections;#CWAWarnings")
+    print(div)
+    averages = []
+    for date in stat_dates:
+        stat_dict = statistics[date]
+        
+        averages.append(stat_dict["new_cwa_warnings"] / teks_length_dict[date])
+        
+        output = date
+        output += ";" + str(int(stat_dict["new_infections"]))
+        output += ";" + str(int(stat_dict["new_cwa_warnings"]))
+        print(output)
+    print(div)
+    print("\n") 
 
     # Amount of new warnings each day 
     print(div)
-    print("Amount of new warnings uploaded to CWA server each day: YYYY-MM-DD;#Warnings")
+    print("Amount of new warnings uploaded to CWA server each day: YYYY-MM-DD;#Warnings") 
     print(div)
     for date in new_warnings_dates:
         output = date
@@ -178,20 +195,39 @@ if __name__ == "__main__":
         print(output)
     print(div)
     print("\n")
-
-    # Statistics of CWA server
+    
+    # Amount of new warnings each day based on averaging and data in stats 
+    average_multiplicator = sum(averages) / len(averages)
     print(div)
-    print("Statistics: YYYY-MM-DD;#NewInfections;#CWAWarnings")
+    print("Averaging and Deriviation: Amount of new warnings uploaded to CWA server each day: YYYY-MM-DD;#Warnings") 
+    print("Used warnings_to_teks average multiplicator: " + str(average_multiplicator))
     print(div)
-    for date in stat_dates:
-        stat_dict = statistics[date]
+    for date in tek_dates:
         output = date
-        output += ";" + str(int(stat_dict["new_infections"]))
-        output += ";" + str(int(stat_dict["new_cwa_warnings"]))
+        derived_warnings = teks_length_dict[date] * average_multiplicator 
+        output += ";" + str(int(round(derived_warnings, 0)))
         print(output)
     print(div)
     print("\n")
- 
+    
+    # Amount of new warnings each day based on mean of new warnings to teks in stats 
+    averages.sort()
+    if len(averages) % 2 == 0:
+        mean_multiplicator = (averages[int((len(averages) / 2) - 1)] + averages[int(len(averages) / 2)]) / 2
+    else:
+        mean_multiplicator = averages[int(len(averages) / 2)]
+    print(div)
+    print("Mean: Amount of new warnings uploaded to CWA server each day: YYYY-MM-DD;#Warnings") 
+    print("Used warnings_to_teks mean multiplicator: " + str(mean_multiplicator))
+    print(div)
+    for date in tek_dates:
+        output = date
+        derived_warnings = teks_length_dict[date] * mean_multiplicator 
+        output += ";" + str(int(round(derived_warnings, 0)))
+        print(output)
+    print(div)
+    print("\n")
+
     # OS of ids 
     print(div)
     print("OS detection:")
