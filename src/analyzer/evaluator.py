@@ -188,6 +188,7 @@ if __name__ == "__main__":
     # Amount of new warnings each day 
     print(div)
     print("Amount of new warnings uploaded to CWA server each day: YYYY-MM-DD;#Warnings") 
+    print("Doing independently of stats")
     print(div)
     for date in new_warnings_dates:
         output = date
@@ -200,17 +201,19 @@ if __name__ == "__main__":
     average_multiplicator = sum(averages) / len(averages)
     print(div)
     print("Averaging and Deriviation: Amount of new warnings uploaded to CWA server each day: YYYY-MM-DD;#Warnings") 
+    print("Dependently on stats. Only warnings of the dates without stats are derived and else the values of the stats are used")
     print("Used warnings_to_teks average multiplicator: " + str(average_multiplicator))
     print(div)
     for date in tek_dates:
         output = date
-        derived_warnings = teks_length_dict[date] * average_multiplicator 
-        output += ";" + str(int(round(derived_warnings, 0)))
+        if date in stat_dates:
+            output += ";" + str(int(statistics[date]["new_cwa_warnings"]))
+        else:
+            derived_warnings = teks_length_dict[date] * average_multiplicator 
+            output += ";" + str(int(round(derived_warnings, 0)))
         print(output)
     print(div)
     print("\n")
-
-    #TODO Overlook if warnings are derived for day on stats or only for day without stats
     
     # Amount of new warnings each day based on mean of new warnings to teks in stats 
     averages.sort()
@@ -220,12 +223,16 @@ if __name__ == "__main__":
         mean_multiplicator = averages[int(len(averages) / 2)]
     print(div)
     print("Mean: Amount of new warnings uploaded to CWA server each day: YYYY-MM-DD;#Warnings") 
+    print("Dependently on stats. Only warnings of the dates without stats are derived and else the values of the stats are used")
     print("Used warnings_to_teks mean multiplicator: " + str(mean_multiplicator))
     print(div)
     for date in tek_dates:
         output = date
-        derived_warnings = teks_length_dict[date] * mean_multiplicator 
-        output += ";" + str(int(round(derived_warnings, 0)))
+        if date in stat_dates:
+            output += ";" + str(int(statistics[date]["new_cwa_warnings"]))
+        else:
+            derived_warnings = teks_length_dict[date] * mean_multiplicator 
+            output += ";" + str(int(round(derived_warnings, 0)))
         print(output)
     print(div)
     print("\n")
