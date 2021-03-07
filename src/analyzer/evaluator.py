@@ -209,6 +209,8 @@ if __name__ == "__main__":
         print(output)
     print(div)
     print("\n")
+
+    #TODO Overlook if warnings are derived for day on stats or only for day without stats
     
     # Amount of new warnings each day based on mean of new warnings to teks in stats 
     averages.sort()
