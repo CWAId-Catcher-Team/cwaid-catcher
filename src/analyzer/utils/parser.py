@@ -66,6 +66,8 @@ def parse_ids(output=True):
     # Read data of all exported files
     for subdir, dirnames, filenames in os.walk(config.CATCHED_RPI_DIRECTORY):
         for f in os.listdir(subdir):
+            if f == "tracking_herrngarten":
+                continue
             f_tmp = open(os.path.join(subdir, f), "r")
             content_tmp = f_tmp.readlines()
             f_tmp.close()

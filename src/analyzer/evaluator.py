@@ -18,11 +18,17 @@ from datetime import datetime
 
 def analyse_part(teks,ids):
     key_scheduler = ks()
+    counter = 0
+    # Get the latest timestamp in the teks, which is also equal to the new warnings
+    latest_timestamp = datetime.strptime(teks["date"].replace("-", ""), "%Y%m%d")
+    latest_timestamp = int(latest_timestamp.timestamp() / 600) + 6 
    
-    c = 0
     # loop over each tek and look for each rpi if it is contained in the catched ids
     for key in teks:
         tek = teks[key]
+        if tek[2] == latest_timestamp:
+            counter += 1
+        continue
         for rpi in tek[6]:
             for id_element in ids:            
                 if rpi in id_element:
@@ -51,24 +57,7 @@ def analyse_part(teks,ids):
                     print("AEM: " + aem)
                     print()
 
-    #tmp = 0
-    #tmp_s = ""
-    #for i in teks_list[0].keys():
-    #    tmp += 1
-    #    if tmp == 1:
-    #        tmp_s = i
-    #        break
-    # TODO:   
-    #print("First element of tek_list key_data: " + str(tmp_s) + " element: " + str(teks_list[0][tmp_s]))
-    #tmp = 0
-    #tmp_s = ""
-    #for i in ids[0].keys():
-    #    tmp += 1
-    #    if tmp == 1:
-    #        tmp_s = i
-    #        break
-    #print("Date of first list: " + str(ids[0]["date"]) + ". Time of first list: " + str(ids[0]["time"]) + " first element of first ids list: " + str(ids[0][tmp_s]))
-
+    return counter
 
     
 if __name__ == "__main__":    
@@ -129,6 +118,8 @@ if __name__ == "__main__":
     # Here all found rpis will be stored
     matched_tek_objects = dict() 
 
+    new_warnings_dict = dict()
+
     # Analyse teks of each day for a positive rpi 
     for subdir, dirnames, filenames in os.walk(config.TEK_PARSED_DIRECTORY):
         for f in os.listdir(subdir):
@@ -139,7 +130,9 @@ if __name__ == "__main__":
             # Length - 1 because one entry is the date and correspond not to a tek
             teks_length_dict[f] = len(teks) - 1
             count_teks += len(teks) - 1
-            #analyse_part(teks, ids)
+            new_warnings = analyse_part(teks, ids)
+            new_warnings_dict[f] = new_warnings
+
 
     if not count_teks:
         print('No Teks in {}, trying to create tek lookup data now...'.format(config.TEK_PARSED_DIRECTORY))
@@ -158,6 +151,11 @@ if __name__ == "__main__":
     for date in teks_length_dict.keys():
         tek_dates.append(date)
     tek_dates.sort()
+    
+    new_warnings_dates = []
+    for date in new_warnings_dict.keys():
+        new_warnings_dates.append(date)
+    new_warnings_dates.sort()
 
     # Printing evaluated data
     div = "*" * 50
@@ -169,31 +167,76 @@ if __name__ == "__main__":
     print(str(len(unique_ids)))
     print(div)
     print("\n")
-
-    # TODO Amount of teks each day 
-    print(div)
-    print("Amount of teks uploaded to CWA server: YYYY-MM-DD;#Teks")
-    print(div)
-    for date in tek_dates:
-        output = date
-        output += ";" + str(teks_length_dict[date])
-        #print(output)
-    print(div)
-    print("\n")
-
+    
     # Statistics of CWA server
     print(div)
     print("Statistics: YYYY-MM-DD;#NewInfections;#CWAWarnings")
     print(div)
+    averages = []
     for date in stat_dates:
         stat_dict = statistics[date]
+        
+        averages.append(stat_dict["new_cwa_warnings"] / teks_length_dict[date])
+        
         output = date
         output += ";" + str(int(stat_dict["new_infections"]))
         output += ";" + str(int(stat_dict["new_cwa_warnings"]))
         print(output)
     print(div)
+    print("\n") 
+
+    # Amount of new warnings each day 
+    print(div)
+    print("Amount of new warnings uploaded to CWA server each day: YYYY-MM-DD;#Warnings") 
+    print("Doing independently of stats")
+    print(div)
+    for date in new_warnings_dates:
+        output = date
+        output += ";" + str(new_warnings_dict[date])
+        print(output)
+    print(div)
     print("\n")
- 
+    
+    # Amount of new warnings each day based on averaging and data in stats 
+    average_multiplicator = sum(averages) / len(averages)
+    print(div)
+    print("Averaging and Deriviation: Amount of new warnings uploaded to CWA server each day: YYYY-MM-DD;#Warnings") 
+    print("Dependently on stats. Only warnings of the dates without stats are derived and else the values of the stats are used")
+    print("Used warnings_to_teks average multiplicator: " + str(average_multiplicator))
+    print(div)
+    for date in tek_dates:
+        output = date
+        if date in stat_dates:
+            output += ";" + str(int(statistics[date]["new_cwa_warnings"]))
+        else:
+            derived_warnings = teks_length_dict[date] * average_multiplicator 
+            output += ";" + str(int(round(derived_warnings, 0)))
+        print(output)
+    print(div)
+    print("\n")
+    
+    # Amount of new warnings each day based on mean of new warnings to teks in stats 
+    averages.sort()
+    if len(averages) % 2 == 0:
+        mean_multiplicator = (averages[int((len(averages) / 2) - 1)] + averages[int(len(averages) / 2)]) / 2
+    else:
+        mean_multiplicator = averages[int(len(averages) / 2)]
+    print(div)
+    print("Mean: Amount of new warnings uploaded to CWA server each day: YYYY-MM-DD;#Warnings") 
+    print("Dependently on stats. Only warnings of the dates without stats are derived and else the values of the stats are used")
+    print("Used warnings_to_teks mean multiplicator: " + str(mean_multiplicator))
+    print(div)
+    for date in tek_dates:
+        output = date
+        if date in stat_dates:
+            output += ";" + str(int(statistics[date]["new_cwa_warnings"]))
+        else:
+            derived_warnings = teks_length_dict[date] * mean_multiplicator 
+            output += ";" + str(int(round(derived_warnings, 0)))
+        print(output)
+    print(div)
+    print("\n")
+
     # OS of ids 
     print(div)
     print("OS detection:")
