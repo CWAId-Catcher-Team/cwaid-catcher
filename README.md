@@ -1,4 +1,4 @@
-# cwald-catcher
+# cwaid-catcher
 ## Notes
 Put your catched ids into the src/analyzer/ids directory and name it location_counter_date_time, where date and time correspond to the time where you started your sensor and counter is counter plus one of the location id file that already exists. Look into this directory and you see an example file.
 
