@@ -66,11 +66,12 @@ def analyse_ids(ids):
             start_time = timestamps_rssis[0][0]
             end_time = timestamps_rssis[-1][0]
 
-            if len(timestamps_rssis) > 2:
-                start_datetime =  datetime.fromtimestamp(start_time)
-                rpi_starttimes.append(start_datetime)
-                rpi_global_startimes.append(start_datetime)
-
+            start_datetime =  datetime.fromtimestamp(start_time)
+            rpi_starttimes.append(start_datetime)
+            rpi_global_startimes.append(start_datetime)
+            
+            #If at least 3 timestamps
+            if len(timestamps_rssis) > 2:   
                 rpi_livetime = datetime.fromtimestamp(end_time) - start_datetime
                 rpi_livetime = rpi_livetime.total_seconds()
 
