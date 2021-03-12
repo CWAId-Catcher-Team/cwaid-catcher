@@ -40,6 +40,8 @@ def analyse_ids(ids):
         rpi_livetimes = []
         movement_plots = []
         rpi_starttimes = []
+        rpi_tek_correlations = []
+        rpi_tek_chain_counter = 10
 
         for rpi_key in id_element:
             # TODO: info per RPI trace file 
@@ -61,7 +63,7 @@ def analyse_ids(ids):
             start_time = timestamps_rssis[0][0]
             end_time = timestamps_rssis[-1][0]
 
-            if (len(timestamps_rssis) > 2):
+            if len(timestamps_rssis) > 2:
                 start_datetime =  datetime.fromtimestamp(start_time)
                 rpi_starttimes.append(start_datetime)
 
@@ -73,7 +75,7 @@ def analyse_ids(ids):
                 #print('RPI was catched for ' + s)
 
                 # if enough timestamps and rssi value present
-                if (len(timestamps_rssis) > 3 and len(timestamps_rssis[0]) > 1):
+                if len(timestamps_rssis) > 3 and len(timestamps_rssis[0]) > 1:
                     y = []
                     x = []
                     for time_and_rssi in timestamps_rssis:
@@ -89,7 +91,20 @@ def analyse_ids(ids):
                     #plt.clt()
                     #plt.show()     
                     #plt.sleep(10)
-            
+
+                #If more than 5 timestamps present for RPI
+                #This section tries to trace chained RPIs that probably descend from the same TEK 
+                if len(timestamps_rssis) > rpi_tek_chain_counter:
+                    if rpi_tek_correlations:
+                        last_added_element = rpi_tek_correlations[-1]
+                        last_added_element_end_time = last_added_element[1][-1][0]
+                        if start_time > last_added_element_end_time:
+                            rpi_tek_correlations.append([rpi_key,timestamps_rssis])
+                    else:
+                        rpi_tek_correlations.append([rpi_key,timestamps_rssis])
+                    #check if first occurence of rpi is > than last occurence of the last list element, store timestamp along side RPI
+                    # if not it can still be a second rpi that maby switches so store in a list
+        
         # Durchschnittliche Aufenthaltsdauer per RPI
         if len(rpi_livetimes) > 0:
             global_live_time = 0
@@ -172,6 +187,24 @@ def analyse_ids(ids):
             print('\nRaw Values')
             print(rpis_per_weekday)
 
+
+        # RPI TEK correlation
+        if rpi_tek_correlations:
+            rpi_chains_output = 'RPI chain with more than {} occurences per RPI found that potentially descend from the same TEK.\nFrom {} to {}.\n\nRPIs & averag distance: '\
+                .format(rpi_tek_chain_counter,datetime.fromtimestamp(rpi_tek_correlations[0][1][0][0]).strftime('%c'),datetime.fromtimestamp(rpi_tek_correlations[-1][1][-1][0]).strftime('%c'))
+            
+            for i in rpi_tek_correlations:
+                average_rssi = 0
+                calculated_distance = 0
+                #RSSI info available besides timestamp
+                if len(i[1][0]) > 1:
+                    average_rssi = sum(int(x[1]) for x in i[1]) / len(i[1])
+                    calculated_distance =  round(pow(10,((measured_power - int(average_rssi)) / (10 * n))),2)
+                rpi_chains_output += '->' +' {},{:1.2f}dBm({} m)'.format(i[0].hex(),average_rssi,calculated_distance)
+
+            print(rpi_chains_output)
+           
+            
         # Maximale Aufenthaltsdauer per RPI
         # Anteil an IOS und Anroid Devices 
         # RPIs die am dichtesten für die längste Zeit aufgenommen wurden
