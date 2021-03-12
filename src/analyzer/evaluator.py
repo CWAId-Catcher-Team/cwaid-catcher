@@ -95,22 +95,33 @@ if __name__ == "__main__":
     
     # Parse all catched ids
     ids = parser.parse_ids(False)
+    unvalid_count = parser.parse_wrong_ids() 
   
     unique_ids = set()
     android_count = 0
     ios_count = 0
     other_count = 0
+
+    android_duplicate_count = 0
+    ios_duplicate_count = 0
+
+    id_count = 0
     # Iterate over ids of each file 
     for id_element in ids:
         # Check what os each id file has
         for k, id_info in id_element.items():
+            if k == "date" or k == "time":
+                continue
+            id_count += id_info[-1]
             unique_ids.add(k)
 
             id_os = id_info[4]
             if id_os == 1:
                 ios_count += 1
+                ios_duplicate_count += id_info[-1]
             elif id_os == 2:
                 android_count += 1
+                android_duplicate_count += id_info[-1]
             elif id_os == 3:
                 other_count += 1
 
@@ -162,11 +173,29 @@ if __name__ == "__main__":
     
     # Amount of unique ids 
     print(div)
-    print("Amount of unique catched RPI's")
+    print("Amount of UNIQUE catched RPI's WITHOUT unexpected")
     print(div)
     print(str(len(unique_ids)))
     print(div)
     print("\n")
+   
+    # All further RPI stats
+    print(div)
+    print("Amount of ALL/DUPLICATE catched RPI's WITH unexpected")
+    print(div)
+    print(str(id_count + unvalid_count))
+    print(div)
+    print("Amount of ALL/DUPLICATE catched RPI's WITHOUT unexpected")
+    print(div)
+    print(str(id_count))
+    print(div)
+    print("Amount of ALL/DUPLICATE ONLY unexpected RPI's")
+    print(div)
+    print(str(unvalid_count))
+    print(div)
+    print("\n")
+    
+    # Statistics of CWA server
     
     # Statistics of CWA server
     print(div)
@@ -249,5 +278,14 @@ if __name__ == "__main__":
     print("% Android: " + str((100 * android_count) / all_count) + "\n")
     print("# Other: " + str(other_count))
     print("% Other: " + str((100 * other_count) / all_count))
+    print(div)
+    print("\n")
+    
+    # OS duplicate 
+    print(div)
+    print("OS average catched beacon per OS. Counted as #duplicate_beacons_OS / #unique_beacons_OS")
+    print(div)
+    print("# iOS: " + str(ios_duplicate_count / ios_count))
+    print("# Android: " + str(android_duplicate_count / android_count))
     print(div)
     print("\n")
