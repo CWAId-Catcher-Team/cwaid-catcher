@@ -47,6 +47,8 @@ def analyse_ids(ids):
         rpi_tek_chain_counter = 10
 
         for rpi_key in id_element:
+            if rpi_key == 'date' or rpi_key == 'time':
+                continue
             # TODO: info per RPI trace file 
             # e.g 
             # SET NAME (ENTRIES) from DATE START_TIME - FIN_TIME
@@ -65,50 +67,49 @@ def analyse_ids(ids):
             timestamps_rssis = rpi[1]
             start_time = timestamps_rssis[0][0]
             end_time = timestamps_rssis[-1][0]
-
+              
             start_datetime =  datetime.fromtimestamp(start_time)
+
             rpi_starttimes.append(start_datetime)
             rpi_global_startimes.append(start_datetime)
-            
-            #If at least 3 timestamps
-            if len(timestamps_rssis) > 2:   
-                rpi_livetime = datetime.fromtimestamp(end_time) - start_datetime
-                rpi_livetime = rpi_livetime.total_seconds()
 
-                rpi_livetimes.append(int(rpi_livetime))
-                #s = '{:02}m:{:02}s:{:02}ms'.format(int(rpi_livetime / 60), int(rpi_livetime % 60), int(rpi_livetime % 1 * 1000))
-                #print('RPI was catched for ' + s)
+            rpi_livetime = datetime.fromtimestamp(end_time) - start_datetime
+            rpi_livetime = rpi_livetime.total_seconds()
 
-                # if enough timestamps and rssi value present
-                if len(timestamps_rssis) > 3 and len(timestamps_rssis[0]) > 1:
-                    y = []
-                    x = []
-                    for time_and_rssi in timestamps_rssis:
-                        td = datetime.fromtimestamp(time_and_rssi[0]) - datetime.fromtimestamp(start_time)
-                        ts = int(td.total_seconds())
-                        x.append(ts)
-                        # 10 ^ ((Measured Power — RSSI)/(10 * N))
-                        y.append(round(pow(10,((measured_power - int(time_and_rssi[1])) / (10 * n))),2))  
+            rpi_livetimes.append(int(rpi_livetime))
+            #s = '{:02}m:{:02}s:{:02}ms'.format(int(rpi_livetime / 60), int(rpi_livetime % 60), int(rpi_livetime % 1 * 1000))
+            #print('RPI was catched for ' + s)
 
-                    movement_plots.append([x,y])    
-                    #plt.clp()
-                    #plt.plot(y)
-                    #plt.clt()
-                    #plt.show()     
-                    #plt.sleep(10)
+            # if enough timestamps and rssi value present
+            if len(timestamps_rssis) > 3 and len(timestamps_rssis[0]) > 1:
+                y = []
+                x = []
+                for time_and_rssi in timestamps_rssis:
+                    td = datetime.fromtimestamp(time_and_rssi[0]) - datetime.fromtimestamp(start_time)
+                    ts = int(td.total_seconds())
+                    x.append(ts)
+                    # 10 ^ ((Measured Power — RSSI)/(10 * N))
+                    y.append(round(pow(10,((measured_power - int(time_and_rssi[1])) / (10 * n))),2))  
 
-                #If more than 5 timestamps present for RPI
-                #This section tries to trace chained RPIs that probably descend from the same TEK 
-                if len(timestamps_rssis) > rpi_tek_chain_counter:
-                    if rpi_tek_correlations:
-                        last_added_element = rpi_tek_correlations[-1]
-                        last_added_element_end_time = last_added_element[1][-1][0]
-                        if start_time > last_added_element_end_time:
-                            rpi_tek_correlations.append([rpi_key,timestamps_rssis])
-                    else:
+                movement_plots.append([x,y])    
+                #plt.clp()
+                #plt.plot(y)
+                #plt.clt()
+                #plt.show()     
+                #plt.sleep(10)
+
+            #If more than 5 timestamps present for RPI
+            #This section tries to trace chained RPIs that probably descend from the same TEK 
+            if len(timestamps_rssis) > rpi_tek_chain_counter:
+                if rpi_tek_correlations:
+                    last_added_element = rpi_tek_correlations[-1]
+                    last_added_element_end_time = last_added_element[1][-1][0]
+                    if start_time > last_added_element_end_time:
                         rpi_tek_correlations.append([rpi_key,timestamps_rssis])
-                    #check if first occurence of rpi is > than last occurence of the last list element, store timestamp along side RPI
-                    # if not it can still be a second rpi that maby switches so store in a list
+                else:
+                    rpi_tek_correlations.append([rpi_key,timestamps_rssis])
+                #check if first occurence of rpi is > than last occurence of the last list element, store timestamp along side RPI
+                # if not it can still be a second rpi that maby switches so store in a list
         # Durchschnittliche Aufenthaltsdauer per RPI
         exceeded_lifetime = []
         if len(rpi_livetimes) > 0:
@@ -174,7 +175,7 @@ def analyse_ids(ids):
                 else:
                     rpis_per_weekday[rpi_starttime.weekday()] = 1
         
-            print('\nNumber of the RPIs (first occurence) per hour')
+            print('\nNumber of RPIs (first occurence) per hour')
             rpis_per_hour = dict(sorted(rpis_per_hour.items()))
             fig = tpl.figure()
             fig.barh(rpis_per_hour.values(), list(rpis_per_hour.keys()))
@@ -182,7 +183,7 @@ def analyse_ids(ids):
             print('\nRaw Values')
             print(rpis_per_hour)
 
-            print('\nNumber of the RPIs (first occurence) per weekday')
+            print('\nNumber of RPIs (first occurence) per weekday')
             rpis_per_weekday = dict(sorted(rpis_per_weekday.items()))
             fig = tpl.figure()
             fig.barh(rpis_per_weekday.values(), list(map(lambda x: calendar.day_name[x],rpis_per_weekday)))
@@ -221,6 +222,7 @@ def analyse_ids(ids):
             #result.append([rpi_list[0].hex(), rpi_list[1], rpi_list[2], aem, rpi_list[4]])
     
     # Initialize id set with a dict for the hours per weekday
+    ids_per_weekday = dict()
     for x in range(0,7):
         ids_per_weekday_per_hour[x] = dict()
 
@@ -229,6 +231,11 @@ def analyse_ids(ids):
             ids_per_weekday_per_hour[time.weekday()][time.hour] += 1
         else:
             ids_per_weekday_per_hour[time.weekday()][time.hour] = 1
+
+        if time.weekday() in ids_per_weekday:
+            ids_per_weekday[time.weekday()] += 1
+        else:
+            ids_per_weekday[time.weekday()] = 1
     
     print('RPIs per weekday per hour of {:d} sets.'.format(len(ids)))
     for weekday in ids_per_weekday_per_hour:
@@ -259,6 +266,16 @@ def analyse_ids(ids):
     
     print('\nNormalized values:\n {}'.format(list(map(lambda x: '{:1.2f}'.format(x),rpis_per_hour_total.values()))))
 
+    
+    print('\nNumber of RPIs (first occurence) per weekday of {:d} sets.'.format(len(ids)))
+    ids_per_weekday = dict(sorted(ids_per_weekday.items()))
+    fig = tpl.figure()
+    fig.barh(ids_per_weekday.values(), list(map(lambda x: calendar.day_name[x],ids_per_weekday)))
+    fig.show()
+    print('\nRaw Values')
+    print(ids_per_weekday)
+
+
      
 if __name__ == "__main__":   
     start = time.time()
@@ -275,19 +292,9 @@ if __name__ == "__main__":
 
     analyse_ids(ids)
 
-    print("Storing results into database...")
-
     #s = datetime.now().strftime('%m_%d_%Y_%H%M%S')
     #db = TinyDB('./database/db_{}.json'.format(s)) 
     #db.insert(matched_tek_objects)
-
-    print("Done.")
-    print()
-   
+ 
     duration = int(time.time() - start)
-    print("Needed " + str(duration) + " seconds.")
-
-    
-    #for item in db:
-    #    print(item)
-
+    print("Done. Needed " + str(duration) + " seconds.")
