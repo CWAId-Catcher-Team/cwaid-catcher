@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 import utils.temporary_exposure_key_export_pb2 as temporary_exposure_key_export_pb2
 from utils.config import ApplicationConfig as config
 import datetime as d
@@ -140,3 +141,27 @@ def parse_ids(output=True):
         print("Done.")
 
     return content
+
+
+def parse_wrong_ids():
+    unvalid_count = 0
+    for subdir, dirnames, filenames in os.walk(config.CATCHED_RPI_DIRECTORY):
+        for f in os.listdir(subdir):
+            if f == "tracking_herrngarten":
+                continue
+            f_tmp = open(os.path.join(subdir, f), "r")
+            content_tmp = f_tmp.readlines()
+            f_tmp.close()
+
+            info = f.split("_")
+            date = info[2]
+            time = info[3]
+            for c in content_tmp:
+                c_tmp = c.replace("\n", "").split(";")
+                if c_tmp == ['']:
+                    continue
+
+                if c_tmp[0][:17] == "02000000010000000" or c_tmp[0][2:] == "00000000000000000000000000000000000000":
+                    unvalid_count += 1
+
+    return unvalid_count
