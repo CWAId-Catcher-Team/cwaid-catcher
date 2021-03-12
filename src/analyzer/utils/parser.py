@@ -58,14 +58,16 @@ def parse_tek(t_count):
 
 
 # parses all catched ids and returns a list of dicts, where each dict corresponds to one id file of an esp and where each dict contains date and time as a key with its corresponding value when catching was started and for the rest the keys are the first 16 bytes of the id and contain id + seconds since start as a list
-def parse_ids(output=True):
+def parse_ids(output=True,search_dir=None):
     if output:
         print("Parsing all ids...")
 
     content = [] 
 
+    dir_to_search = search_dir if search_dir else config.CATCHED_RPI_DIRECTORY
+
     # Read data of all exported files
-    for subdir, dirnames, filenames in os.walk(config.CATCHED_RPI_DIRECTORY):
+    for subdir, dirnames, filenames in os.walk(dir_to_search):
         for f in os.listdir(subdir):
             if f == "tracking_herrngarten":
                 continue

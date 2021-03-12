@@ -30,8 +30,11 @@ def analyse_ids(ids):
 
     #Measured Power is a factory-calibrated, read-only constant which indicates what’s the expected RSSI at a distance of 1 meter to the beacon. Combined with RSSI, it allows to estimate the distance between the device and the beacon.
     measured_power = -69
-
     c = 0      
+    
+    ids_per_weekday_per_hour = dict()
+    rpi_global_startimes = []
+
     for id_element in ids:            
         ios_count = 0
         android_count = 0
@@ -66,6 +69,7 @@ def analyse_ids(ids):
             if len(timestamps_rssis) > 2:
                 start_datetime =  datetime.fromtimestamp(start_time)
                 rpi_starttimes.append(start_datetime)
+                rpi_global_startimes.append(start_datetime)
 
                 rpi_livetime = datetime.fromtimestamp(end_time) - start_datetime
                 rpi_livetime = rpi_livetime.total_seconds()
@@ -104,14 +108,14 @@ def analyse_ids(ids):
                         rpi_tek_correlations.append([rpi_key,timestamps_rssis])
                     #check if first occurence of rpi is > than last occurence of the last list element, store timestamp along side RPI
                     # if not it can still be a second rpi that maby switches so store in a list
-        
         # Durchschnittliche Aufenthaltsdauer per RPI
+        exceeded_lifetime = []
         if len(rpi_livetimes) > 0:
             global_live_time = 0
             average_live_time = 0
             max_live_time = 0
             min_live_time = 20
-            exceeded_lifetime = []
+
             for live_time in rpi_livetimes:
                 if live_time > max_live_time:
                     max_live_time = live_time
@@ -153,8 +157,6 @@ def analyse_ids(ids):
             fig.barh([android_count, ios_count], ["Android","iOS"])
             fig.show()
 
-
-      
         rpi_counter = 0
         rpis_per_hour = dict() #key=hour, value=counter
         rpis_per_weekday = dict()
@@ -203,8 +205,7 @@ def analyse_ids(ids):
                 rpi_chains_output += '->' +' {},{:1.2f}dBm({} m)'.format(i[0].hex(),average_rssi,calculated_distance)
 
             print(rpi_chains_output)
-           
-            
+                       
         # Maximale Aufenthaltsdauer per RPI
         # Anteil an IOS und Anroid Devices 
         # RPIs die am dichtesten für die längste Zeit aufgenommen wurden
@@ -217,13 +218,53 @@ def analyse_ids(ids):
         print('\n')   
             # Key, time count, id set, decrypted aem,duplicate_counter           
             #result.append([rpi_list[0].hex(), rpi_list[1], rpi_list[2], aem, rpi_list[4]])
+    
+    # Initialize id set with a dict for the hours per weekday
+    for x in range(0,7):
+        ids_per_weekday_per_hour[x] = dict()
+
+    for time in rpi_global_startimes:
+        if time.hour in ids_per_weekday_per_hour[time.weekday()]:
+            ids_per_weekday_per_hour[time.weekday()][time.hour] += 1
+        else:
+            ids_per_weekday_per_hour[time.weekday()][time.hour] = 1
+    
+    print('RPIs per weekday per hour of {:d} sets.'.format(len(ids)))
+    for weekday in ids_per_weekday_per_hour:
+        print('\n'+ calendar.day_name[weekday])
+        sorted_hours = dict(sorted(ids_per_weekday_per_hour[weekday].items()))
+    
+        fig = tpl.figure()
+        fig.barh(sorted_hours.values(), list(sorted_hours.keys()))
+        fig.show()
+
+    #Rpis per hour all sets
+    rpis_per_hour_total = dict()
+    for start_time in rpi_global_startimes:
+        if start_time.hour in rpis_per_hour_total:
+            rpis_per_hour_total[start_time.hour] += 1
+        else:
+            rpis_per_hour_total[start_time.hour] = 1
+   
+    print('\nRPIs per hour of {:d} sets normalized by the max value.'.format(len(ids)))
+    #Sort
+    rpis_per_hour_total = dict(sorted(rpis_per_hour_total.items()))
+    fig = tpl.figure()
+    fig.barh(rpis_per_hour_total.values(), list(rpis_per_hour_total.keys()))
+    fig.show()
+    #Normalize
+    max_count = max(rpis_per_hour_total.values())
+    rpis_per_hour_total = dict(map(lambda x: (x[0],round(x[1]/max_count,2)),rpis_per_hour_total.items()))  
+    
+    print('\nNormalized values:\n {}'.format(list(map(lambda x: '{:1.2f}'.format(x),rpis_per_hour_total.values()))))
+
      
 if __name__ == "__main__":   
     start = time.time()
     count_ids = 0
    
        # Parse all catched ids
-    ids = parser.parse_ids()
+    ids = parser.parse_ids(search_dir='stores')
     
     for id_element in ids:
         count_ids += len(id_element)
