@@ -190,7 +190,7 @@ def analyse_ids(ids):
 
         # RPI TEK correlation
         if rpi_tek_correlations:
-            rpi_chains_output = 'RPI chain with more than {} occurences per RPI found that potentially descend from the same TEK.\nFrom {} to {}.\n\nRPIs & averag distance: '\
+            rpi_chains_output = 'RPI chain (non overlapping RPIs) with more than {} occurences per RPI found.\nFrom {} to {}. This data can be used to correlate RPIs.\n\nRPIs & averag distance: '\
                 .format(rpi_tek_chain_counter,datetime.fromtimestamp(rpi_tek_correlations[0][1][0][0]).strftime('%c'),datetime.fromtimestamp(rpi_tek_correlations[-1][1][-1][0]).strftime('%c'))
             
             for i in rpi_tek_correlations:
