@@ -8,8 +8,38 @@ from multiprocessing import Pool
 from multiprocessing import cpu_count 
 
 
+print("Crypto Test based on data from paper Mind the GAP...")
+
 key_scheduler = ks()
 
+# Paper: Mind the GAP
+# Test RPI deriviation
+tek5 = bytes.fromhex("fd3df1b125a21a28f1d7746fd5a46538")
+rpi5 = key_scheduler.tek_to_rpi(tek5, 2656788)
+res = bytes.fromhex("93:86:be:ad:6a:02:12:d6:20:5c:66:5d:b6:4c:cf:e4:a4:e4:48:9c".replace(":", ""))
+assert rpi5 == res[:16], 'Expected RPI of {} but got {}.'.format(res,rpi5)
+
+# Test RPI deriviation
+tek6 = bytes.fromhex("fd3df1b125a21a28f1d7746fd5a46538")
+rpi6 = key_scheduler.tek_to_rpi(tek6, 2656789)
+res = bytes.fromhex("3b:65:33:3a:53:83:d8:c4:d6:34:46:72:a1:49:63:de:3d:16:70:31".replace(":", ""))
+assert rpi6 == res[:16], 'Expected RPI of {} but got {}.'.format(res,rpi6)
+
+# Test AEM decryption
+daem = key_scheduler.dam_all(tek5, rpi5, bytes.fromhex("a4e4489c"))
+eaem = key_scheduler.eam_all(tek5, rpi5, daem)
+assert eaem == bytes.fromhex("a4e4489c"), "Error in AEM decryption"
+
+# Test AEM decryption
+daem = key_scheduler.dam_all(tek6, rpi6, bytes.fromhex("3d167031"))
+eaem = key_scheduler.eam_all(tek6, rpi6, daem)
+assert eaem == bytes.fromhex("3d167031"), "Error in AEM decryption"
+
+print("Successful!")
+print()
+print("Doing further tests")
+
+# Further tests
 tek = b'\xfd=\xf1\xb1%\xa2\x1a(\xf1\xd7to\xd5\xa4e8'
 
 rpi1 = key_scheduler.tek_to_rpi(tek, 2656789)

@@ -70,4 +70,8 @@ class CryptoHelper:
         cipher = AES.new(key, AES.MODE_CTR, nonce=b'', initial_value=iv)
         return cipher.decrypt(data) 
 
+    def aes_ctr_encryption(self, key: bytes, iv: bytes, data: bytes) -> bytes:
+        cipher = AES.new(key, AES.MODE_CTR, nonce=b'', initial_value=iv)
+        return cipher.encrypt(data) 
+
     

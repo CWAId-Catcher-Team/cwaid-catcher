@@ -46,5 +46,15 @@ class KeyScheduler:
         #   • This is the measured radiated transmit power of Bluetooth Advertisement packets, and is used to improve distance approximation. The range of this field shall be -127 to +127 dBm.
         #iii. Byte 2 — Reserved for future use. 
         #iv. Byte 3 — Reserved for future use. 
+    
+    
+    def dam_all(self, tke: bytes, rpi: bytes, aem: bytes):
+        aemk = self.crypto.hkdf(tke,None,'EN-AEMK'.encode('utf-8'),16)
+        data = self.crypto.aes_ctr_decryption(aemk, rpi, aem)
+        return data
+    
+    def eam_all(self, tke: bytes, rpi: bytes, daem: bytes):
+        aemk = self.crypto.hkdf(tke,None,'EN-AEMK'.encode('utf-8'),16)
+        data = self.crypto.aes_ctr_encryption(aemk, rpi, daem)
+        return data
         
-
