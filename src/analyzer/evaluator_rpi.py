@@ -240,11 +240,11 @@ def analyse_ids(ids):
     print('RPIs per weekday per hour of {:d} sets.'.format(len(ids)))
     for weekday in ids_per_weekday_per_hour:
         print('\n'+ calendar.day_name[weekday])
-        sorted_hours = dict(sorted(ids_per_weekday_per_hour[weekday].items()))
-    
-        fig = tpl.figure()
-        fig.barh(sorted_hours.values(), list(sorted_hours.keys()))
-        fig.show()
+        if len(ids_per_weekday_per_hour[weekday]):
+            sorted_hours = dict(sorted(ids_per_weekday_per_hour[weekday].items()))
+            fig = tpl.figure()
+            fig.barh(sorted_hours.values(), list(sorted_hours.keys()))
+            fig.show()
 
     #Rpis per hour all sets
     rpis_per_hour_total = dict()
@@ -253,27 +253,28 @@ def analyse_ids(ids):
             rpis_per_hour_total[start_time.hour] += 1
         else:
             rpis_per_hour_total[start_time.hour] = 1
-   
-    print('\nRPIs per hour of {:d} sets normalized by the max value.'.format(len(ids)))
-    #Sort
-    rpis_per_hour_total = dict(sorted(rpis_per_hour_total.items()))
-    fig = tpl.figure()
-    fig.barh(rpis_per_hour_total.values(), list(rpis_per_hour_total.keys()))
-    fig.show()
-    #Normalize
-    max_count = max(rpis_per_hour_total.values())
-    rpis_per_hour_total = dict(map(lambda x: (x[0],round(x[1]/max_count,2)),rpis_per_hour_total.items()))  
     
-    print('\nNormalized values:\n {}'.format(list(map(lambda x: '{:1.2f}'.format(x),rpis_per_hour_total.values()))))
+    if len(rpis_per_hour_total):
+        print('\nRPIs per hour of {:d} sets normalized by the max value.'.format(len(ids)))
+        #Sort
+        rpis_per_hour_total = dict(sorted(rpis_per_hour_total.items()))
+        fig = tpl.figure()
+        fig.barh(rpis_per_hour_total.values(), list(rpis_per_hour_total.keys()))
+        fig.show()
+        #Normalize
+        max_count = max(rpis_per_hour_total.values())
+        rpis_per_hour_total = dict(map(lambda x: (x[0],round(x[1]/max_count,2)),rpis_per_hour_total.items()))  
+        
+        print('\nNormalized values:\n {}'.format(list(map(lambda x: '{}:{:1.2f}'.format(x[0],x[1]),rpis_per_hour_total.items()))))
 
-    
-    print('\nNumber of RPIs (first occurence) per weekday of {:d} sets.'.format(len(ids)))
-    ids_per_weekday = dict(sorted(ids_per_weekday.items()))
-    fig = tpl.figure()
-    fig.barh(ids_per_weekday.values(), list(map(lambda x: calendar.day_name[x],ids_per_weekday)))
-    fig.show()
-    print('\nRaw Values')
-    print(ids_per_weekday)
+    if len(ids_per_weekday):
+        print('\nNumber of RPIs (first occurence) per weekday of {:d} sets.'.format(len(ids)))
+        ids_per_weekday = dict(sorted(ids_per_weekday.items()))
+        fig = tpl.figure()
+        fig.barh(ids_per_weekday.values(), list(map(lambda x: calendar.day_name[x],ids_per_weekday)))
+        fig.show()
+        print('\nRaw Values')
+        print(ids_per_weekday)
 
 
      
