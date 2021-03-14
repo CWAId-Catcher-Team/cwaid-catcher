@@ -21,7 +21,7 @@ This project is still under development, but the main functionality is already i
 **Termplotlib to print statistics on the terminal output**<br>
 `python -m pip install termplotlib`
 
-## TO EXTEND: Usage of sensors
+## Sensor code and usage
 Using the Arduino IDE, program code can be flashed on the sensor. After connecting an ESP32 sensor via USB and choosing the correct port, the Serial Monitor can be utilized to read the sensor's output and issue commands to the sensor. We utilize several programs that provide different functionalities tailored to particular use cases. To store data in the sensors' non-volatile flash memory, we utilize the SPIFFS library. Flashing new program code to the sensor does not affect the persistent data storage.
 
 ### BLE_catcher
@@ -29,6 +29,7 @@ The **BLE_catcher.ino** file is located in src/BLE_catcher. In a specified inter
 ### BLE_catcher_observations
 The **BLE_catcher_observations.ino** file is located in src/BLE_catcher_observations. Its implementation is mostly identical to BLE_catcher, with some notable differences. Sensors running this code additionally record the Received Signal Strength Indicator (RSSI), and further do not enter the light sleep mode after a completed scan. Thereby, this code is particularly tailored for experiments where battery life is not an issue, e.g. short experiments that involve to observation of the sensor's surroundings to determine the number of people passing the sensor.
 ### FileIO
+The **FileIO.ino** file is located in src/FileIO. This program allows to setup the ESP32 flash storage. Issuing the command `commands` to the sensor, a list of all possible commands is displayed. One may create or delete a file used to store the collected data, can read the storage's content for different write formats, and allows to format the SPIFFS file system. When first utilizing a sensor's flash memory using SPIFFS, the parameter passed to SPIFFS.begin() in line 12 must be set to `true` to allow the mounting of the file system. To prevent an accidential deletion of data, the parameter is set to `false` by default in our code. A manual creation of files is not required, the sensor code creates a file with a fixed name. This program is mainly used to prepare a sensor for its next operation after a conducted experiment.
 
 ## Storing collected IDs
 Put your catched ids into the src/analyzer/ids directory and name it location_counter_date_time, where date and time correspond to the time where you started your sensor and counter is counter plus one of the location id file that already exists (if it exists of course). Look into this directory and you see example files.
