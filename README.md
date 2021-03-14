@@ -5,7 +5,7 @@ CWAid-catcher is a project which tries to analyse the german Corona-Warn-App (CW
 
 This project is still under development, but the main functionality is already implemented and works. Mostly setup scripts are missing. If you follow the descriptions in the following, you will be able to exectute everything.
 
-![Evaluation Framwork Logo](/img/ef.png)
+![Evaluation Framwork Logo](/img/ef1.png)
 
 ## System Requirements
 - Linux based system (or terminal). Only needed for getting TEKs. Rest works with Python3.
@@ -33,6 +33,14 @@ This project is still under development, but the main functionality is already i
   - `clear` (flushes all stored beacons from file)
   - `usedBytes` (displays #bytes that are currently used to store beacons)
   - `totalBytes` (displays #bytes that can potentially be used to store beacons)
+
+Using the Arduino IDE, program code can be flashed on the sensor. After connecting an ESP32 sensor via USB and choosing the correct port, the Serial Monitor can be utilized to read the sensor's output and issue commands to the sensor. We utilize several programs that provide different functionalities tailored to particular use cases. To store data in the sensors' non-volatile flash memory, we utilize the SPIFFS library. Flashing new program code to the sensor does not affect the persistent data storage.
+
+### BLE_catcher
+
+### BLE_catcher_observations
+
+### FileIO
 
 ## Storing collected IDs
 Put your catched ids into the src/analyzer/ids directory and name it location_counter_date_time, where date and time correspond to the time where you started your sensor and counter is counter plus one of the location id file that already exists (if it exists of course). Look into this directory and you see example files.
