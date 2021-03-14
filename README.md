@@ -22,18 +22,6 @@ This project is still under development, but the main functionality is already i
 `python -m pip install termplotlib`
 
 ## TO EXTEND: Usage of sensors
-- To avoid accidental deletion of collected beacons, the deletion/clearing of the beacons file stored in the sensors' flash memory can only be done using the FileIO programm.
-- Changing the sensor's program code does not seem to affect the file in flash memory that stores the beacons.
-- The sensors' reset button do not format the flash memory, i.e. the beacons in storage are persistent until deletion using FileIO
-- FileIO and BLE_catcher both allow to print all stored beacons by typing `read` as SerialMonitor input. Note: BLE_catcher only reads that input every 20 seconds at the moment, so be patient :)
-- File management is handled in code, the only thing you have to do is reading and clearing it (see below).
-- FileIO comes with the following input commands to SerialMonitor: 
-  - `read` (prints all beacons stored in flash mem)
-  - `delete` (deletes beacon file)
-  - `clear` (flushes all stored beacons from file)
-  - `usedBytes` (displays #bytes that are currently used to store beacons)
-  - `totalBytes` (displays #bytes that can potentially be used to store beacons)
-
 Using the Arduino IDE, program code can be flashed on the sensor. After connecting an ESP32 sensor via USB and choosing the correct port, the Serial Monitor can be utilized to read the sensor's output and issue commands to the sensor. We utilize several programs that provide different functionalities tailored to particular use cases. To store data in the sensors' non-volatile flash memory, we utilize the SPIFFS library. Flashing new program code to the sensor does not affect the persistent data storage.
 
 ### BLE_catcher
