@@ -1,8 +1,11 @@
 # cwaid-catcher
 
+## Note
+This project is still under development, but the main functionality is already implemented and works. Mostly setup scripts are missing. If you follow the descriptions in the README, you will be able to exectute everything.
+
 ## System Requirements
 - Linux based system (or terminal). Only needed for getting TEKs. Rest works with Python.
-- Python 
+- Python3
 - Arduino IDE
 
 ## TO EXTEND: Usage of sensors
@@ -23,9 +26,9 @@ Put your catched ids into the src/analyzer/ids directory and name it location_co
 
 ## Evaluating your collected data
 ### Getting TEKs
-First of all you need TEKs downloaded from the CWA server. You can download these with the puller script (src/puller/puller.sh) each day to get the TEKs of the preceding day. The TEKs are uploaded at 1 am (MET). If you want to download the TEKs for a specific date, you can pass the date as an argument to the puller script in the format YYYY-MM-DD. Note, if you pass a specific date, you should first check which dates are available under https://svc90.main.px.t-online.de/version/v1/diagnosis-keys/country/DE/date. The puller script will then store the TEKs and you have to do nothing else.
-
-
+First of all you need TEKs downloaded from the CWA server. You can download these with the puller shell script (src/puller/puller.sh) each day to get the TEKs of the preceding day. The TEKs are uploaded at 1 am (MET). If you want to download the TEKs for a specific date, you can pass the date as an argument to the puller script in the format YYYY-MM-DD. Note, if you pass a specific date, you should first check which dates are available under https://svc90.main.px.t-online.de/version/v1/diagnosis-keys/country/DE/date. The puller script will then store the TEKs and you have to do nothing else.
+### Finding collected RPIs that belong to a downloaded TEK
+To determine if a collected RPI belongs to a downloaded TEK, which means that a infected person passed by one or more of the sensors, you need to run main.py in src/analyzer/. This script makes use of tek_parser.py to parse the downloaded TEKs, to calculate each RPI that can be derived of the TEK and to store the data in a intermediate format. Since the deriviation of the RPI is time-consuming because of the cryptography operations, we store the TEK data and its RPIs in a intermediate format, such that only one time the RPIs are derived. However, storing the TEKs in a intermediate format takes some space (around 55 MB for TEKs from one date). The main.py script will then load each of the TEKs and its RPIs of the data stored in the intermediate format and tries to match RPIs to RPIs collected with the sensors (stored in src/analyzer/ids/). For each match, the information about the matched RPI like the AEM and and its TEK will be output. Parsing a downloaded TEK file and converting it to the intermediate format takes about 1-2 minutes and is only done one time as described. Analysing the data of the intermediate format and trying to match the RPIs with collected RPIs takes about 10-20 seconds per TEK file stored in intermediate format.
 
 ## Further Information
 
