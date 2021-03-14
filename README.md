@@ -10,6 +10,15 @@ This project is still under development, but the main functionality is already i
 - Python3
 - Arduino IDE
 
+**Pycryptodome for RPI derivation and AEM decryption**\
+`python -m pip install pycryptodome`\
+**Protobuf for decoding binary TEK lists downloaded from CWA server**\
+`python -m pip install protobuf`\
+**Tinydb to store the results of the evaluators**\
+`python -m pip install tinydb`\
+**Termplotlib to print statistics on the terminal output**\ 
+`python -m pip install termplotlib`\
+
 ## TO EXTEND: Usage of sensors
 - To avoid accidental deletion of collected beacons, the deletion/clearing of the beacons file stored in the sensors' flash memory can only be done using the FileIO programm.
 - Changing the sensor's program code does not seem to affect the file in flash memory that stores the beacons.
@@ -32,7 +41,17 @@ First of all you need TEKs downloaded from the CWA server. You can download thes
 ### Finding collected RPIs that belong to a downloaded TEK
 To determine if a collected RPI belongs to a downloaded TEK, which means that a infected person passed by one or more of the sensors, you need to run main.py in src/analyzer/. This script makes use of tek_parser.py to parse the downloaded TEKs, to calculate each RPI that can be derived of the TEK and to store the data in a intermediate format. Since the deriviation of the RPI is time-consuming because of the cryptography operations, we store the TEK data and its RPIs in a intermediate format, such that only one time the RPIs are derived. However, storing the TEKs in a intermediate format takes some space (around 55 MB for TEKs from one date). The main.py script will then load each of the TEKs and its RPIs of the data stored in the intermediate format and tries to match RPIs to RPIs collected with the sensors (stored in src/analyzer/ids/). For each match, the information about the matched RPI like the AEM and and its TEK will be output. Parsing a downloaded TEK file and converting it to the intermediate format takes about 1-2 minutes and is only done one time as described. Analysing the data of the intermediate format and trying to match the RPIs with collected RPIs takes about 10-20 seconds per TEK file stored in intermediate format.
 ### Evaluating more than matching RPIs
-With evaluator.py in src/analyzer/, you can evaluate different things like the amount of unique IDs, the distribution of Android/iOS devices in your collected IDs and the amount of new warnings uploaded to the CWA server on a specific date. In src/analyzer/tools are the count_analyzer and group_analyzer, which analyzer IDs if you counted people and want to measure the percentage of CWA users among this people. For this you need to have a sensor, count the people manually, upload the IDs to the src/analyzer/ids folder with the right nameing (see folder for examples) and run the count_analyzer.py. The same can be done for the group_analyzer, but you have to count the groups and store you results in the src/analyzer/groups folder and then run group_analyzer.py. See example group files in the corresponding folder.
+With **evaluator.py** in src/analyzer/, you can evaluate different things like the amount of unique IDs, the distribution of Android/iOS devices in your collected IDs and the amount of new warnings uploaded to the CWA server on a specific date. In src/analyzer/tools are the count_analyzer and group_analyzer, which analyzer IDs if you counted people and want to measure the percentage of CWA users among this people. For this you need to have a sensor, count the people manually, upload the IDs to the src/analyzer/ids folder with the right nameing (see folder for examples) and run the count_analyzer.py. The same can be done for the group_analyzer, but you have to count the groups and store you results in the src/analyzer/groups folder and then run group_analyzer.py. See example group files in the corresponding folder.
+
+The **evaluator_rpi** takes the lists of scanned RPIs and returns statistics including:
+- Average time CWA users were tracked by the sensor
+- Longest and shortest tracked time
+- Finding RPIs that exceeded their expected livetime of about 20 minutes
+- Distance measurements based on the RSSI 
+- Amount of Android and iOS devices (based on our assumption that the BLE Beacon header length indicates the OS)
+- Number of RPIs per hour/weekday
+- RPI chains: Non-overlapping RPIs that can be used to correlate different RPIs to a TEK 
+- above statistics per RPI set or for all sets combined
 
 ## Further Information
 
