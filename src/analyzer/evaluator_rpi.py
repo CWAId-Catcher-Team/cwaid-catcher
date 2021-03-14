@@ -1,7 +1,7 @@
 # REQUIRES:
 #   pycryptdome: python -m pip install pycryptodome
 #   protobuf: python -m pip install protobuf
-#   tinydb: python -m pip install tinydb
+#   tinydb: python -m pip install tinydb,termplotlib
 #   
 import os
 import pickle
@@ -31,6 +31,7 @@ def analyse_ids(ids):
     #Measured Power is a factory-calibrated, read-only constant which indicates what’s the expected RSSI at a distance of 1 meter to the beacon. Combined with RSSI, it allows to estimate the distance between the device and the beacon.
     measured_power = -69
     c = 0      
+    livetime_mins = 20
     
     ids_per_weekday_per_hour = dict()
     rpi_global_startimes = []
@@ -123,7 +124,7 @@ def analyse_ids(ids):
                     max_live_time = live_time
                 if live_time < min_live_time:
                     min_live_time = live_time
-                if live_time >= 16*60:
+                if live_time >= livetime_mins*60:
                     exceeded_lifetime.append(live_time)
                 global_live_time += live_time
             average_live_time = global_live_time / len(rpi_livetimes)            
@@ -151,7 +152,7 @@ def analyse_ids(ids):
             #     plt.sleep(5);
     # Livetime länger als 15min
         if exceeded_lifetime:
-            print('{} ids exceeded their expected lifetime of about 16 min, the maximum was {:02} min'.format(len(exceeded_lifetime), int(sorted(exceeded_lifetime)[-1] / 60)))
+            print('{} ids exceeded their expected lifetime of about {:d} min, the maximum was {:02} min'.format(len(exceeded_lifetime),livetime_mins, int(sorted(exceeded_lifetime)[-1] / 60)))
 
         if android_count and ios_count:
             print('\nNumber of tracked Android and iOS devices')
@@ -194,7 +195,7 @@ def analyse_ids(ids):
 
         # RPI TEK correlation
         if rpi_tek_correlations:
-            rpi_chains_output = 'RPI chain (non overlapping RPIs) with more than {} occurences per RPI found.\nFrom {} to {}. This data can be used to correlate RPIs.\n\nRPIs & averag distance: '\
+            rpi_chains_output = 'RPI chain (non overlapping RPIs) with more than {} occurences per RPI found.\nFrom {} to {}. This data can be used to correlate RPIs.\n\nRPIs & average distance: '\
                 .format(rpi_tek_chain_counter,datetime.fromtimestamp(rpi_tek_correlations[0][1][0][0]).strftime('%c'),datetime.fromtimestamp(rpi_tek_correlations[-1][1][-1][0]).strftime('%c'))
             
             for i in rpi_tek_correlations:
