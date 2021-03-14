@@ -23,7 +23,7 @@ This project is still under development, but the main functionality is already i
   - `usedBytes` (displays #bytes that are currently used to store beacons)
   - `totalBytes` (displays #bytes that can potentially be used to store beacons)
 
-## Storing IDs
+## Storing collected IDs
 Put your catched ids into the src/analyzer/ids directory and name it location_counter_date_time, where date and time correspond to the time where you started your sensor and counter is counter plus one of the location id file that already exists (if it exists of course). Look into this directory and you see example files.
 
 ## Evaluating your collected data
