@@ -43,7 +43,7 @@ To determine if a collected RPI belongs to a downloaded TEK, which means that a 
 ### Evaluating more than matching RPIs
 With **evaluator.py** in src/analyzer/, you can evaluate different things like the amount of unique IDs, the distribution of Android/iOS devices in your collected IDs and the amount of new warnings uploaded to the CWA server on a specific date. In src/analyzer/tools are the count_analyzer and group_analyzer, which analyzer IDs if you counted people and want to measure the percentage of CWA users among this people. For this you need to have a sensor, count the people manually, upload the IDs to the src/analyzer/ids folder with the right nameing (see folder for examples) and run the count_analyzer.py. The same can be done for the group_analyzer, but you have to count the groups and store you results in the src/analyzer/groups folder and then run group_analyzer.py. See example group files in the corresponding folder.
 
-The **evaluator_rpi** takes the lists of scanned RPIs and returns statistics including:
+The **evaluator_rpi.py** takes the lists of scanned RPIs and returns statistics including:
 - Average time CWA users were tracked by the sensor
 - Longest and shortest tracked time
 - Finding RPIs that exceeded their expected livetime of about 20 minutes
