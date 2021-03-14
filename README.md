@@ -16,8 +16,8 @@ This project is still under development, but the main functionality is already i
 `python -m pip install protobuf`\
 **Tinydb to store the results of the evaluators**\
 `python -m pip install tinydb`\
-**Termplotlib to print statistics on the terminal output**\ 
-`python -m pip install termplotlib`\
+**Termplotlib to print statistics on the terminal output**<br>
+`python -m pip install termplotlib`
 
 ## TO EXTEND: Usage of sensors
 - To avoid accidental deletion of collected beacons, the deletion/clearing of the beacons file stored in the sensors' flash memory can only be done using the FileIO programm.
