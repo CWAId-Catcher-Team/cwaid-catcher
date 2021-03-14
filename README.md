@@ -2,16 +2,6 @@
 ## Notes
 Put your catched ids into the src/analyzer/ids directory and name it location_counter_date_time, where date and time correspond to the time where you started your sensor and counter is counter plus one of the location id file that already exists. Look into this directory and you see an example file.
 
-## Report
-https://sharelatex01.ca.hrz.tu-darmstadt.de/project/5fd8aaca49f2b34cf0c84fbb
-
-## Meeting
-Time | Home
------------- | -------------
-Every Tuesday 12:00 | https://tu-darmstadt.zoom.us/j/3780886571?pwd=cVZld1hzY2p5eEIrQzNqdzE0dnlJZz09
-
-Target date for finishing lab: End of January
-
 ## Infos
  Software & Hardware  | Details
 ------------ | -------------
@@ -47,13 +37,3 @@ Goolge Exposure Notification API Key Scheduling Implementation | https://github.
   - `clear` (flushes all stored beacons from file)
   - `usedBytes` (displays #bytes that are currently used to store beacons)
   - `totalBytes` (displays #bytes that can potentially be used to store beacons)
-
-## Week Plans:
-
-**01-08:**
-* Get ESPs
-* Get familiar with ESP (how to use it and try a simple hello world project or so)
-
-**08-15:**
-* Niklas & Simon: Get Bluetooth frame catching running on ESP and optionally already create some code for the rest of the project
-* Lukas & Martin: Research documentation to filter out how backend works and how keys are derived and distributed between client devices. Document everything and present it in the next meeting.
