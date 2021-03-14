@@ -5,7 +5,7 @@ CWAid-catcher is a project which tries to analyse the german Corona-Warn-App (CW
 
 This project is still under development, but the main functionality is already implemented and works. Mostly setup scripts are missing. If you follow the descriptions in the following, you will be able to exectute everything.
 
-![Evaluation Framwork Logo](/img/ef.png)
+![Evaluation Framwork Logo](/img/ef1.png)
 
 ## System Requirements
 - Linux based system (or terminal). Only needed for getting TEKs. Rest works with Python3.
