@@ -5,6 +5,8 @@ CWAid-catcher is a project which tries to analyse the german Corona-Warn-App (CW
 
 This project is still under development, but the main functionality is already implemented and works. Mostly setup scripts are missing. If you follow the descriptions in the following, you will be able to exectute everything.
 
+Please refer to the [white paper](https://github.com/CWAId-Catcher-Team/cwaid-catcher/blob/main/whitepaper.pdf) for details and experimental results regarding our project. 
+
 ![Evaluation Framwork Logo](/img/ef.png)
 
 ## System Requirements
